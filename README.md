@@ -12,10 +12,11 @@ ARCH 653 Project 1 · Farshad Askari · Texas A&M University · Fall 2026
 
 | Path | What |
 |---|---|
-| `index.html` | the page (one file: layout, text, and the WebGL figure that turns from a body into the tower as you scroll) |
-| `assets/img/` | full-size images, opened in the lightbox |
-| `assets/img/sm/` | smaller copies shown on the page |
-| `assets/video/` | Farshad's first-person video and its poster frame |
+| `index.html` | the page: text, the live body and access figures, the memory replay, the raw/AI compare, and the WebGL figure that turns from a body into the tower as you scroll |
+| `assets/data/va.js` | Pawn engine output for the page: the floor plan, rooms each body can enter, and three runs of the same person (Visitor 1st and 2nd visit, Staff) with the moment each square, door and room enters memory |
+| `assets/video/` | Farshad and X side by side (Revit first-person renders + plan with memory, 24x), Farshad's Cycles first-person video, posters |
+| `assets/img/` | full-size images for the lightbox; `sm/` smaller copies on the page; `wipe/` raw/AI pairs at the same size |
+| `tools/` | the scripts that made `va.js` and the comparison video with the Pawn engine (run on copies of the Project1_v01 run; they need the Pawn engine, which is not in this repo) |
 
 To view it locally, open `index.html` in a browser, or run `python -m http.server` in this folder and open
 http://localhost:8000.

@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The Parametric VA · Torre Agbar</title>
-<meta name="description" content="A parametric human walks a parametric tower: body, brain and memory as Revit families inside a parametric Torre Agbar. ARCH 653 Project 1, Farshad Askari, Texas A&M University.">
+<meta name="description" content="A parametric human with a body, a brain and a memory, walking a parametric Torre Agbar in Revit. ARCH 653 Project 1, Farshad Askari, Texas A&M University.">
 <meta name="author" content="Farshad Askari">
 <meta name="theme-color" content="#000000">
 <meta property="og:type" content="website">
 <meta property="og:title" content="The Parametric VA · Torre Agbar">
-<meta property="og:description" content="A parametric human walks a parametric tower. Body, brain and memory are Revit families, like the 1,260 panels of the façade.">
+<meta property="og:description" content="Body, brain and memory as Revit families: change one parameter and the building changes; walk it once and the agent remembers.">
 <meta property="og:url" content="https://faroshad.github.io/VA_Parametric/">
 <meta property="og:image" content="https://faroshad.github.io/VA_Parametric/assets/img/share.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&family=Michroma&display=swap">
 <style>
 /* Layout: a black ground with the WebGL body/tower fixed in the centre; each section floats its text on the left
-   and its images on the right with no panels behind them, so nothing masks the figure. */
+   and its media on the right with no panels behind them, so nothing masks the figure. */
 :root {
   --black: #000000;
   --night: #0b0b0d;
@@ -27,6 +27,9 @@
   --ink-soft: #8d8d94;
   --hair: rgba(236, 236, 238, .22);
   --shade: 0 0 10px rgba(0, 0, 0, .9);
+  --v1: #e8a33d;      /* Visitor, 1st visit */
+  --v2: #5aa2db;      /* Visitor, 2nd visit; Farshad */
+  --st: #ececee;      /* Staff */
   --f-title: "Michroma", "Eurostile", "Arial Black", Arial, sans-serif;
   --f-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
@@ -67,6 +70,8 @@ a { color: inherit; text-underline-offset: 3px; }
 .sec { max-width: 1440px; margin: 0 auto; min-height: 96svh; display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr) minmax(0, 440px); gap: 2rem; align-items: center; padding-block: 9svh; }
 .sec-text { grid-column: 1; display: grid; gap: .8rem; align-content: start; min-width: 0; }
 .sec-media { grid-column: 3; display: grid; gap: .9rem; align-content: start; min-width: 0; }
+/* wide sections (replay, comparison video): the media takes the right side up to 640px */
+.sec.wide .sec-media { grid-column: 2 / 4; justify-self: end; width: min(100%, 600px); }
 .idx, .file { color: var(--ink-soft); }
 .sec h2 { font-family: var(--f-title); font-size: 1rem; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; }
 .txt { display: grid; gap: .8rem; font-weight: 300; font-size: 1rem; overflow-wrap: anywhere; }
@@ -77,6 +82,7 @@ a { color: inherit; text-underline-offset: 3px; }
 /* parameters and equations: the parametric part of each section */
 .eq { display: grid; gap: .35rem; margin: .2rem 0 0; padding: .15rem 0 .15rem .85rem; border-left: 1px solid var(--hair); font-family: var(--f-mono); font-weight: 300; font-size: .74rem; line-height: 1.55; overflow-wrap: anywhere; }
 .eq .k { color: var(--ink-soft); }
+.eq .sw { display: inline-block; width: .7em; height: .7em; margin-right: .45em; vertical-align: -.05em; }
 
 .slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
 .slots.one { grid-template-columns: minmax(0, 1fr); }
@@ -85,26 +91,54 @@ a { color: inherit; text-underline-offset: 3px; }
 .slot .zoom { display: block; width: 100%; padding: 0; border: 1px solid var(--hair); background: transparent; cursor: zoom-in; }
 .slot .zoom img { display: block; width: 100%; height: auto; }
 .slot video { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid var(--hair); background: #000; }
-.slot figcaption { font-size: .84rem; font-weight: 300; line-height: 1.45; display: grid; gap: .15rem; }
-.slot figcaption .mono { color: var(--ink-soft); }
+.slot figcaption, .vis figcaption { font-size: .84rem; font-weight: 300; line-height: 1.45; display: grid; gap: .15rem; }
+.slot figcaption .mono, .vis figcaption .mono { color: var(--ink-soft); }
 
-/* the family tree, drawn as text in a framed plate */
-.plate { margin: 0; position: relative; border: 1px solid var(--hair); padding: 1rem 1.1rem; display: grid; gap: .9rem; min-width: 0; }
-.plate::before, .plate::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--ink-soft); opacity: .7; top: -1px; }
-.plate::before { left: -1px; border-right: 0; border-bottom: 0; }
-.plate::after { right: -1px; border-left: 0; border-bottom: 0; }
-.plate pre { margin: 0; font: 300 .72rem/1.7 var(--f-mono); white-space: pre; overflow-x: auto; }
-.plate pre .k { color: var(--ink-soft); }
-.plate figcaption { font-size: .84rem; font-weight: 300; color: var(--ink-soft); }
+/* generated, live figures: framed like a drawing plate */
+.vis { margin: 0; position: relative; border: 1px solid var(--hair); padding: .8rem; display: grid; gap: .7rem; min-width: 0; text-shadow: none; }
+.vis::before, .vis::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--ink-soft); opacity: .7; top: -1px; }
+.vis::before { left: -1px; border-right: 0; border-bottom: 0; }
+.vis::after { right: -1px; border-left: 0; border-bottom: 0; }
+.vis svg { display: block; width: 100%; height: auto; }
+.vis svg text { font-family: var(--f-mono); fill: var(--ink-soft); }
+.seg { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.seg .lab { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-right: .2rem; }
+.btn { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; padding: .32rem .55rem; border: 1px solid var(--hair); background: transparent; color: var(--ink); cursor: pointer; border-radius: 0; }
+.btn:hover { border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.readings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; font-family: var(--f-mono); }
+.readings div { display: grid; gap: .1rem; }
+.readings .k { font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+.readings .v { font-size: .95rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--ink); margin: 0; }
+.runs { width: 100%; border-collapse: collapse; font-family: var(--f-mono); font-size: .7rem; font-variant-numeric: tabular-nums; }
+.runs th, .runs td { text-align: left; padding: .3rem .4rem; border-bottom: 1px solid var(--hair); font-weight: 300; white-space: nowrap; }
+.runs th { font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+.runs td.n { text-align: right; }
+.runs tr.on td { color: var(--ink); background: rgba(236, 236, 238, .07); }
+.runs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; }
+.runs button:focus-visible { outline: 2px solid #6f8cff; outline-offset: 2px; }
+.runs .sw { width: .8em; height: .8em; display: inline-block; }
+.timebar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .6rem; align-items: center; font-family: var(--f-mono); font-size: .68rem; color: var(--ink-soft); }
+.scroll-x { overflow-x: auto; }
+.txt b { font-weight: 500; }
+/* raw render / AI: the AI image is clipped to the right of the line */
+.wipe { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--hair); --x: 50%; }
+.wipe img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.wipe img.b { clip-path: inset(0 0 0 var(--x)); }
+.wipe .bar { position: absolute; top: 0; bottom: 0; left: var(--x); width: 2px; margin-left: -1px; background: var(--ink); box-shadow: 0 0 6px rgba(0, 0, 0, .8); pointer-events: none; }
+.wipe .tag { position: absolute; top: .5rem; color: var(--ink); background: rgba(0, 0, 0, .55); padding: .15rem .4rem; text-shadow: none; }
+.wipe .tag.l { left: .5rem; } .wipe .tag.r { right: .5rem; }
+.wipe input[type=range] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+.wipe:focus-within { outline: 2px solid #6f8cff; outline-offset: 2px; }
 
 .foot { max-width: 1440px; margin: 0 auto; padding-block: 3rem calc(5rem + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem 2rem; color: var(--ink-soft); }
 .foot span:first-child { color: var(--ink); }
 
 .readout { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 2; pointer-events: none; color: var(--ink-soft); white-space: nowrap; font-size: .62rem; text-shadow: var(--shade); }
 
-.btn { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; padding: .32rem .55rem; border: 1px solid var(--hair); background: transparent; color: var(--ink); cursor: pointer; border-radius: 0; }
-.btn:hover { border-color: var(--ink); }
-.btn:focus-visible, .zoom:focus-visible, a:focus-visible, video:focus-visible { outline: 2px solid #6f8cff; outline-offset: 2px; }
+.btn:focus-visible, .zoom:focus-visible, a:focus-visible, video:focus-visible, input:focus-visible { outline: 2px solid #6f8cff; outline-offset: 2px; }
 
 /* lightbox */
 dialog#lb { width: min(96vw, 1700px); max-width: none; height: min(92vh, 1200px); max-height: none; padding: 0; border: 1px solid var(--hair); background: var(--night); color: var(--ink); }
@@ -123,12 +157,14 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
   .hero { grid-template-columns: minmax(0, 1fr); min-height: 88svh; align-content: space-between; padding-block: 9svh 12svh; }
   .hero-r { grid-column: 1; justify-items: start; text-align: left; }
   .sec { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 0; margin-bottom: 62svh; gap: 1.4rem; }
-  .sec-text, .sec-media { grid-column: 1; }
+  .sec-text, .sec-media, .sec.wide .sec-media { grid-column: 1; width: 100%; justify-self: stretch; }
   .sec-media:empty { display: none; }
+  .vis { background: rgba(0, 0, 0, .78); }
 }
 @media (max-width: 480px) {
   .slots { grid-template-columns: minmax(0, 1fr); }
   .slots.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+  .readings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .readout { white-space: normal; width: calc(100vw - 32px); text-align: center; line-height: 1.6; }
 }
 </style>
@@ -142,7 +178,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     <div class="hero-l">
       <p class="mono">ARCH 653 · Project 1 · Torre Agbar</p>
       <h1>The Parametric VA</h1>
-      <p class="sub">A parametric human walks a parametric tower. Body, brain and memory are Revit families, like the 1,260 panels of the façade.</p>
+      <p class="sub">An agent built as Revit families: a body, a brain and a memory. Change one parameter and the building changes; walk it once and the agent remembers.</p>
       <div class="who">
         <p class="mono name">Farshad Askari</p>
         <p class="mono">Texas A&amp;M University · Fall 2026</p>
@@ -158,73 +194,129 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     </div>
   </header>
 
-  <section class="sec" id="description" aria-labelledby="h-description">
-    <div class="sec-text">
-      <p class="mono idx">01 / 15</p>
-      <h2 id="h-description">Description</h2>
-      <div class="txt">
-        <p>Two parametric systems share one Revit model. The tower is Torre Agbar (Ateliers Jean Nouvel, Barcelona, 2005): three parameters shape it and 1,260 façade panels respond.</p>
-        <p>The people are families too, with a body, a brain and a memory, and a physics engine walks them through the tower's office floor.</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image3.jpg" data-cap="Project1_AI_image3 · The office floor with a person in it"><img src="assets/img/sm/Project1_AI_image3.jpg" alt="A curved office corridor inside the tower with a person standing in it" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image3</span><span>The office floor with a person in it.</span></figcaption></figure>
-      </div>
-    </div>
-  </section>
-
   <section class="sec" id="body" aria-labelledby="h-body">
     <div class="sec-text">
-      <p class="mono idx">02 / 15 · Human</p>
+      <p class="mono idx">01 / 11 · VA</p>
       <h2 id="h-body">Parametric body</h2>
       <p class="mono file">VA Body.rfa</p>
       <div class="txt">
-        <p>The type is a body group taken from measured people. The instance is one person, with a name, a pose and a mobility. Formulas turn these into what the simulation needs.</p>
+        <p>The body is a Revit family. The type holds measured sizes; the instance is one person. Formulas turn mobility and pose into the three numbers the engine walks with.</p>
       </div>
       <div class="eq">
-        <p><span class="k">Type</span> Adult Male P50 · 5.75 ft · 1.6 ft shoulders · 199.8 lb</p>
-        <p><span class="k">Eye height</span> = if(seated, seat + 0.45 · stature, 0.936 · stature)</p>
-        <p><span class="k">Clear width</span> = shoulders + 0.25 ft sway; cane +0.5 ft; walker 2.5 ft; wheelchair 32 in</p>
-        <p><span class="k">Speed</span> 4.40 ft/s walking; 1.87 ft/s with a walker</p>
+        <p><span class="k">Eye height</span> = if(seated, seat + 0.45·S, 0.936·S)</p>
+        <p><span class="k">Clear width</span> = shoulders + 0.25 ft; cane +0.5 ft; walker 2.5 ft; wheelchair 32 in</p>
+        <p><span class="k">Speed</span> 4.40 · 2.66 · 1.87 · 2.26 ft/s</p>
       </div>
     </div>
     <div class="sec-media">
-      <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/VA_Body_Farshad.jpg" data-cap="Farshad · Body type, his instance, brain profile and memory"><img src="assets/img/sm/VA_Body_Farshad.jpg" alt="Diagram of the agent Farshad: body family, type and instance, brain family, profile and memory" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Farshad</span><span>Body type, his instance, brain profile and memory.</span></figcaption></figure>
-      </div>
+      <figure class="vis" id="bodyvis">
+        <div class="seg" role="group" aria-label="Mobility"><span class="lab">Mobility</span></div>
+        <div class="seg" role="group" aria-label="Pose"><span class="lab">Pose</span></div>
+        <svg viewBox="-2.4 -7.1 9.2 7.75" role="img" aria-label="Front view and plan of the body for the chosen mobility and pose"></svg>
+        <div class="readings"></div>
+        <label class="timebar"><span>S − 0.5 ft</span><input type="range" min="-0.5" max="0.5" step="0.05" value="0" aria-label="Stature delta"><span>+ 0.5 ft</span></label>
+        <figcaption><span class="mono">Live</span><span>The family's formulas in the browser. S = stature; the circle is the body the engine walks with.</span></figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="sec" id="brain" aria-labelledby="h-brain">
+  <section class="sec" id="access" aria-labelledby="h-access">
     <div class="sec-text">
-      <p class="mono idx">03 / 15 · Human</p>
-      <h2 id="h-brain">Parametric brain</h2>
-      <p class="mono file">VA Brain.rfa</p>
+      <p class="mono idx">02 / 11 · VA</p>
+      <h2 id="h-access">Body → building</h2>
+      <p class="mono file">4 bodies × 9 rooms</p>
       <div class="txt">
-        <p>A brain type is a profile. A Visitor plans only through rooms it has been in and searches door by door; Staff know the plan.</p>
-        <p>Memory belongs to the person: a folder that follows the name into every building, so the same person learns a floor.</p>
+        <p>Change Mobility and the floor changes. Routes are planned on a 0.5 ft grid for each body's clear width: the wheelchair (32 in) loses Office 02, which the walker (30 in) still enters.</p>
       </div>
       <div class="eq">
-        <p><span class="k">Visitor</span> curiosity 0.6 · patience 600 s · pre-movement 30 s</p>
-        <p><span class="k">Sight</span> a door is known once a line from the eyes reaches it; furniture blocks only if taller than the eyes</p>
+        <p><span class="k">Restroom</span> all four bodies</p>
+        <p><span class="k">Office 02</span> all but the wheelchair</p>
+        <p><span class="k">7 rooms</span> none: doors open into gaps under 22 in, or the room is closed off</p>
       </div>
     </div>
     <div class="sec-media">
+      <figure class="vis" id="accessvis">
+        <div class="seg" role="group" aria-label="Mobility"><span class="lab">Mobility</span></div>
+        <svg viewBox="-63 -63 126 126" role="img" aria-label="Floor plan with the rooms the chosen body can enter"></svg>
+        <figcaption><span class="mono" id="access-sum">Pawn engine, Project1_v01</span><span>Filled: rooms this body can enter from the entrance (+).</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec wide" id="memory" aria-labelledby="h-memory">
+    <div class="sec-text">
+      <p class="mono idx">03 / 11 · VA</p>
+      <h2 id="h-memory">Brain and memory</h2>
+      <p class="mono file">VA Brain.rfa · memory/&lt;building&gt;.json</p>
+      <div class="txt">
+        <p>A Visitor plans only through what it has walked and seen; Staff know the plan. Memory is a file per person per building: 10 ft squares seen, doors seen, rooms entered.</p>
+        <p>Same body, same two stops, three runs. One visit is enough: with its memory, the Visitor walks Staff's route.</p>
+      </div>
+      <div class="eq">
+        <p><span class="sw" style="background:var(--v1)"></span>Visitor, 1st visit · 405 s · 654 ft · detour 2.80</p>
+        <p><span class="sw" style="background:var(--v2)"></span>Visitor, 2nd visit · 176 s · 244 ft · detour 1.05</p>
+        <p><span class="sw" style="background:var(--st)"></span>Staff · 176 s · 244 ft · detour 1.05</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="vis" id="replay">
+        <svg viewBox="-63 -63 126 126" role="img" aria-label="Replay of three runs on the floor plan, with the selected run's memory"></svg>
+        <div class="timebar"><button class="btn" type="button" id="rp-play">Play</button><input type="range" id="rp-t" min="0" max="405" step="0.5" value="0" aria-label="Simulated time"><span id="rp-clock">00:00</span></div>
+        <div class="scroll-x"><table class="runs"><thead><tr><th>Memory shown</th><th>State</th><th class="n">Time</th><th class="n">Walked</th><th class="n">Seen</th><th class="n">Doors</th></tr></thead><tbody></tbody></table></div>
+        <figcaption><span class="mono">Pawn engine · 8× real time</span><span>Shaded squares and door rings: the chosen run's memory as it forms (grey: what it already knew).</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec wide" id="pair" aria-labelledby="h-pair">
+    <div class="sec-text">
+      <p class="mono idx">04 / 11 · VA</p>
+      <h2 id="h-pair">Farshad and X</h2>
+      <p class="mono file">The run in the model</p>
+      <div class="txt">
+        <p>Same body, same brain, different entrances: two people build two memories of one floor. Top: what each saw, rendered by Revit every simulated second. Bottom: tracks and memory.</p>
+      </div>
+      <div class="eq">
+        <p><span class="sw" style="background:var(--v2)"></span>Farshad · 586 ft · 36.7 min · detour 1.78</p>
+        <p><span class="sw" style="background:#4cbb6e"></span>X · 867 ft · 39.7 min · detour 2.84</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="slot">
+        <video src="assets/video/Farshad_X_compare.mp4" poster="assets/video/Farshad_X_compare_poster.jpg" controls preload="metadata" playsinline muted width="1280" height="720" aria-label="Farshad and X side by side: first-person views and the plan with tracks and memory"></video>
+        <figcaption><span class="mono">Farshad_X_compare · 24× real time</span><span>The whole visit in 1 min 40 s.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="eyes" aria-labelledby="h-eyes">
+    <div class="sec-text">
+      <p class="mono idx">05 / 11 · VA</p>
+      <h2 id="h-eyes">What he saw</h2>
+      <p class="mono file">Farshad_ego.mp4</p>
+      <div class="txt">
+        <p>Farshad's eyes on his simulated track: 5.38 ft up, a 60° view, rendered in Blender Cycles from Revit's own export.</p>
+        <p>A visualisation: in the simulation he sees only by sight lines at eye height.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="slot">
+        <video src="assets/video/Farshad_ego.mp4" poster="assets/video/Farshad_ego_poster.jpg" controls preload="metadata" playsinline width="1280" height="720" aria-label="First-person video of Farshad's walk"></video>
+        <figcaption><span class="mono">Farshad_ego</span><span>The first 122 s of the walk.</span></figcaption>
+      </figure>
       <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/VA_Farshad_and_X.jpg" data-cap="Farshad and X · Same body, same brain, different memory"><img src="assets/img/sm/VA_Farshad_and_X.jpg" alt="Farshad and X share a body type and brain profile; their memory maps of the floor differ" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Farshad and X</span><span>Same body, same brain, different memory.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Camera_before_after.jpg" data-cap="Camera fix · Revit draws a perspective crop 0.1 ft in front of the eye; reading the near clip as that distance gave a 169° view through walls, now 60°"><img src="assets/img/sm/Camera_before_after.jpg" alt="Three first-person frames before and after the camera fix" width="880" height="815" loading="lazy"></button><figcaption><span class="mono">Camera fix</span><span>Before: 169°, cutting through walls. After: 60°, as measured from posts at known angles.</span></figcaption></figure>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="simulation" aria-labelledby="h-simulation">
+  <section class="sec" id="engine" aria-labelledby="h-engine">
     <div class="sec-text">
-      <p class="mono idx">04 / 15 · Human</p>
-      <h2 id="h-simulation">Simulation</h2>
+      <p class="mono idx">06 / 11 · VA</p>
+      <h2 id="h-engine">Engine</h2>
       <p class="mono file">Pawn engine</p>
       <div class="txt">
-        <p>Each person is a disc as wide as its clear width, with its mass and speed, moved by the social force model every 0.02 s. Routes are A* on a 0.5 ft grid sized to that body, so a door narrower than the body stays closed.</p>
-        <p>Results return to Revit as parameters, a schedule and a map.</p>
+        <p>Each body is a disc of its clear width and mass, moved by the social force model every 0.02 s. Results go back to Revit as parameters, a schedule and a map.</p>
       </div>
       <div class="eq">
         <p>m · dv/dt = m (v₀e − v) / τ + Σ f<sub>ij</sub> + Σ f<sub>iW</sub></p>
@@ -233,131 +325,54 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     </div>
     <div class="sec-media">
       <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_pipeline.jpg" data-cap="Pawn engine · From the Engine window to results in Revit"><img src="assets/img/sm/Pawn_pipeline.jpg" alt="Pipeline: command in Revit, building snapshot, simulation, result files, replay in the model" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Pawn engine</span><span>From the Engine window to results in Revit.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_pipeline.jpg" data-cap="Pawn engine · From the Engine window to results in Revit"><img src="assets/img/sm/Pawn_pipeline.jpg" alt="Pipeline: command in Revit, building snapshot, simulation, result files, replay in the model" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Pipeline</span><span>From the Engine window to results in Revit.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_map_Visit.png" data-cap="Pawn map · Farshad and X: tracks, stops (S), warning points (W), seconds spent per 1 ft square"><img src="assets/img/sm/Pawn_map_Visit.jpg" alt="Revit plan of the floor with two agents' tracks, stops, warning points and time spent per square" width="880" height="670" loading="lazy"></button><figcaption><span class="mono">Pawn map</span><span>Drawn in Revit: tracks, stops, warning points, seconds per 1 ft square.</span></figcaption></figure>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="run" aria-labelledby="h-run">
+  <section class="sec" id="critique" aria-labelledby="h-critique">
     <div class="sec-text">
-      <p class="mono idx">05 / 15 · Human</p>
-      <h2 id="h-run">Two visitors</h2>
-      <p class="mono file">Visit · 21 Oct 2026</p>
+      <p class="mono idx">07 / 11</p>
+      <h2 id="h-critique">Revit critique</h2>
       <div class="txt">
-        <p>Farshad and X, both Visitors using walking frames, enter the office floor with six stops to find. Each reached three. Stops outside any room were given up after 600 s and marked as warning points.</p>
+        <ul>
+          <li><b>No physics.</b> Revit has no bodies, mass, forces or contact. A door is a width in a schedule, not an opening a body has to fit through.</li>
+          <li><b>No human-readable dynamic experience.</b> Its views are still frames with no time and no movement. It cannot show a walk as a person lives it: where they look, wait, or get lost.</li>
+          <li><b>No simulation.</b> Nothing runs. Revit cannot answer whether this person can get there, how long it takes, or what they will remember. Here the engine runs outside Revit and writes the answers back.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sec-media"></div>
+  </section>
+
+  <section class="sec" id="tower" aria-labelledby="h-tower" data-build-start>
+    <div class="sec-text">
+      <p class="mono idx">08 / 11 · Tower</p>
+      <h2 id="h-tower">Parametric tower</h2>
+      <p class="mono file">Project1_mass.rfa · Project1_envelope.rfa</p>
+      <div class="txt">
+        <p>Three numbers shape the mass. Each of the 1,260 panels reads its own width W and sets its louvres, or turns to glass.</p>
       </div>
       <div class="eq">
-        <p><span class="k">Farshad</span> 586 ft · 36.7 min · detour 1.78</p>
-        <p><span class="k">X</span> 867 ft · 39.7 min · detour 2.84</p>
-        <p><span class="k">Detour</span> = walked / shortest route for that body</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_map_Visit.png" data-cap="Pawn map · Tracks, stops (S), warning points (W), seconds spent per 1 ft square"><img src="assets/img/sm/Pawn_map_Visit.jpg" alt="Plan of the circular office floor with two agents' tracks, stops, warning points and a heat map of time spent" width="880" height="670" loading="lazy"></button><figcaption><span class="mono">Pawn map</span><span>Drawn in Revit: tracks, stops (S), warning points (W), seconds spent per 1 ft square.</span></figcaption></figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="eyes" aria-labelledby="h-eyes">
-    <div class="sec-text">
-      <p class="mono idx">06 / 15 · Human</p>
-      <h2 id="h-eyes">What he saw</h2>
-      <p class="mono file">Farshad_ego.mp4</p>
-      <div class="txt">
-        <p>Farshad's view along his simulated track, at his eye height of 5.38 ft, with a 60° field of view.</p>
-        <p>This is a render of the walk (Revit's export, rendered in Blender Cycles): a visualisation. In the simulation he sees only by sight lines.</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <figure class="slot">
-        <video src="assets/video/Farshad_ego.mp4" poster="assets/video/Farshad_ego_poster.jpg" controls preload="metadata" playsinline width="1280" height="720" aria-label="First-person video of Farshad's walk"></video>
-        <figcaption><span class="mono">Farshad_ego</span><span>The first 122 s of the walk.</span></figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="sec" id="mass" aria-labelledby="h-mass" data-build-start>
-    <div class="sec-text">
-      <p class="mono idx">07 / 15 · Tower</p>
-      <h2 id="h-mass">Parametric mass</h2>
-      <p class="mono file">Project1_mass.rfa</p>
-      <div class="txt">
-        <p>Three instance parameters shape the tower: a cylinder of radius R up to z0, then an elliptical dome closing at H. Floors, panels and louvres follow.</p>
-      </div>
-      <div class="eq">
-        <p>z<sub>i</sub> = z0 + t<sub>i</sub> (H − z0)</p>
-        <p>r<sub>i</sub> = R √(1 − t<sub>i</sub>²), t = 0.2, 0.4, 0.6, 0.8, 0.95, 0.99</p>
-        <p><span class="k">Values</span> R 61′-3½″ · H 465′-10½″ · z0 250′-11¾″</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <div class="slots">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot3.jpg" data-cap="Screenshot3 · z0 = 120′-11¾″: the taper starts low"><img src="assets/img/sm/Screenshot3.jpg" alt="Family Types dialog with z0 = 120 ft 11¾ in and the tower tapering low" width="880" height="539" loading="lazy"></button><figcaption><span class="mono">Screenshot3</span><span>z0 = 120′-11¾″: the taper starts low.</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot4.jpg" data-cap="Screenshot4 · z0 = 260′-11¾″: the taper starts high"><img src="assets/img/sm/Screenshot4.jpg" alt="Family Types dialog with z0 = 260 ft 11¾ in and the tower tapering high" width="880" height="556" loading="lazy"></button><figcaption><span class="mono">Screenshot4</span><span>z0 = 260′-11¾″: the taper starts high.</span></figcaption></figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="envelope" aria-labelledby="h-envelope">
-    <div class="sec-text">
-      <p class="mono idx">08 / 15 · Tower</p>
-      <h2 id="h-envelope">Responsive envelope</h2>
-      <p class="mono file">Project1_envelope.rfa</p>
-      <div class="txt">
-        <p>A four-point curtain panel sits on each of the 1,260 cells (36 columns × 35 rows). Each reads its own width W: the louvres tilt with it, and panels narrower than W_dome turn to glass, which makes the dome.</p>
-      </div>
-      <div class="eq">
+        <p>z<sub>i</sub> = z0 + t<sub>i</sub> (H − z0) · r<sub>i</sub> = R √(1 − t<sub>i</sub>²)</p>
         <p>Tilt = TiltMin + (TiltMax − TiltMin) · (W − Wmin) / (Wmax − Wmin)</p>
         <p>Glazed = W &lt; W_dome</p>
-        <p>Rows = rounddown(Height / Pitch)</p>
-        <p><span class="k">Values</span> TiltMin 20° · TiltMax 76° · W_dome 9′-2¼″</p>
       </div>
     </div>
     <div class="sec-media">
       <div class="slots">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot1.jpg" data-cap="Screenshot1 · TiltMax = 30°: louvres more closed"><img src="assets/img/sm/Screenshot1.jpg" alt="Type Properties with TiltMax = 30 degrees and the louvres more closed" width="880" height="683" loading="lazy"></button><figcaption><span class="mono">Screenshot1</span><span>TiltMax = 30°: louvres more closed.</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot2.jpg" data-cap="Screenshot2 · TiltMax = 80°: louvres open"><img src="assets/img/sm/Screenshot2.jpg" alt="Type Properties with TiltMax = 80 degrees and the louvres open" width="880" height="718" loading="lazy"></button><figcaption><span class="mono">Screenshot2</span><span>TiltMax = 80°: louvres open.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot3.jpg" data-cap="Screenshot3 · z0 = 120′-11¾″: the taper starts low"><img src="assets/img/sm/Screenshot3.jpg" alt="Family Types dialog with z0 = 120 ft 11¾ in and the tower tapering low" width="880" height="539" loading="lazy"></button><figcaption><span class="mono">z0 = 120′-11¾″</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot4.jpg" data-cap="Screenshot4 · z0 = 260′-11¾″: the taper starts high"><img src="assets/img/sm/Screenshot4.jpg" alt="Family Types dialog with z0 = 260 ft 11¾ in and the tower tapering high" width="880" height="556" loading="lazy"></button><figcaption><span class="mono">z0 = 260′-11¾″</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot1.jpg" data-cap="Screenshot1 · TiltMax = 30°: louvres more closed"><img src="assets/img/sm/Screenshot1.jpg" alt="Type Properties with TiltMax = 30 degrees and the louvres more closed" width="880" height="683" loading="lazy"></button><figcaption><span class="mono">TiltMax = 30°</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot2.jpg" data-cap="Screenshot2 · TiltMax = 80°: louvres open"><img src="assets/img/sm/Screenshot2.jpg" alt="Type Properties with TiltMax = 80 degrees and the louvres open" width="880" height="718" loading="lazy"></button><figcaption><span class="mono">TiltMax = 80°</span></figcaption></figure>
       </div>
-    </div>
-  </section>
-
-  <section class="sec" id="diagram" aria-labelledby="h-diagram">
-    <div class="sec-text">
-      <p class="mono idx">09 / 15 · Tower</p>
-      <h2 id="h-diagram">Parametric diagram</h2>
-      <p class="mono file">Parametric Modeling Diagram</p>
-      <div class="txt">
-        <p>Parameters pass down five nested families. The human chain works the same way: inputs, formulas, then a result the model can read.</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <figure class="plate">
-<pre>Project1.rvt  <span class="k">levels 00–31 + TA/TB/TC</span>
-└─ Project1_mass.rfa
-   <span class="k">R, H, z0</span>
-   └─ divided surface  <span class="k">36 × 35 = 1,260</span>
-      ├─ Project1_envelope.rfa
-      │  <span class="k">W, Hp → Tilt, Glazed, LED_Material</span>
-      │  └─ P1_LouvreSet.rfa
-      │     <span class="k">Width, Height, Pitch → Rows</span>
-      │     └─ P1_Blade.rfa
-      │        <span class="k">Tilt, Length, Cavity</span>
-      └─ Project1_envelope_ground.rfa
-         <span class="k">ground row, same parameters</span></pre>
-<pre><span class="k">tower</span>  R · z0 · H → form → W
-       → Tilt · Glazed → louvres, dome
-<span class="k">human</span>  Name · Pose · Mobility
-       → eye height · clear width · speed
-       → walk</pre>
-        <figcaption>Family structure and the two parameter flows.</figcaption>
-      </figure>
     </div>
   </section>
 
   <section class="sec" id="led" aria-labelledby="h-led">
     <div class="sec-text">
-      <p class="mono idx">10 / 15 · Tower</p>
+      <p class="mono idx">09 / 11 · Tower</p>
       <h2 id="h-led">LED façade</h2>
       <p class="mono file">LED_Material</p>
       <div class="txt">
@@ -366,94 +381,55 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     </div>
     <div class="sec-media">
       <div class="slots three">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image1_Blobs.png" data-cap="Image1 · Blobs, seen from south and north"><img src="assets/img/sm/Image1_Blobs.jpg" alt="Blobs image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image1</span><span>Blobs</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image2_Tulips.png" data-cap="Image2 · Tulips, seen from south and north"><img src="assets/img/sm/Image2_Tulips.jpg" alt="Tulips image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image2</span><span>Tulips</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image3_Cloud.png" data-cap="Image3 · Cloud, seen from south and north"><img src="assets/img/sm/Image3_Cloud.jpg" alt="Cloud image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image3</span><span>Cloud</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image1_Blobs.png" data-cap="Image1 · Blobs, seen from south and north"><img src="assets/img/sm/Image1_Blobs.jpg" alt="Blobs image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Blobs</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image2_Tulips.png" data-cap="Image2 · Tulips, seen from south and north"><img src="assets/img/sm/Image2_Tulips.jpg" alt="Tulips image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Tulips</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image3_Cloud.png" data-cap="Image3 · Cloud, seen from south and north"><img src="assets/img/sm/Image3_Cloud.jpg" alt="Cloud image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Cloud</span></figcaption></figure>
       </div>
       <div class="slots one">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image1.jpg" data-cap="Project1_AI_image1 · The Blobs façade in Barcelona"><img src="assets/img/sm/Project1_AI_image1.jpg" alt="The tower with the Blobs façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image1</span><span>The Blobs façade in Barcelona.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image1.jpg" data-cap="Project1_AI_image1 · The Blobs façade in Barcelona"><img src="assets/img/sm/Project1_AI_image1.jpg" alt="The tower with the Blobs façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image1</span></figcaption></figure>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="bim" aria-labelledby="h-bim">
+  <section class="sec wide" id="renders" aria-labelledby="h-renders">
     <div class="sec-text">
-      <p class="mono idx">11 / 15 · Tower</p>
-      <h2 id="h-bim">BIM model</h2>
-      <p class="mono file">Project1.rvt</p>
+      <p class="mono idx">10 / 11 · Tower</p>
+      <h2 id="h-renders">Raw render → AI</h2>
+      <p class="mono file">Rendering · Rendering_AI</p>
       <div class="txt">
-        <p>35 levels follow the mass floors, and the slabs are Floor by Face. Floors 12, 13 and 24 have offices, furniture and rooms.</p>
+        <p>Each raw render with its AI version, on top of each other: drag to compare. The interiors keep the camera and the layout; light, materials and context change.</p>
       </div>
     </div>
     <div class="sec-media">
-      <div class="slots">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering1.jpg" data-cap="Rendering1"><img src="assets/img/sm/Rendering1.jpg" alt="Render of the tower at dusk" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Rendering1</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering2.jpg" data-cap="Rendering2"><img src="assets/img/sm/Rendering2.jpg" alt="Render of the curved office floor" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Rendering2</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Raw_Renders_Image1.jpg" data-cap="Raw render · The tower among trees"><img src="assets/img/sm/Raw_Renders_Image1.jpg" alt="Raw render of the tower seen between trees" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Raw render</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Raw_Renders_Image4.jpg" data-cap="Raw render · Louvres on the façade"><img src="assets/img/sm/Raw_Renders_Image4.jpg" alt="Close raw render of the louvres on the façade" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Raw render</span><span>Louvres</span></figcaption></figure>
-      </div>
+      <figure class="vis" id="wipe">
+        <div class="seg" role="group" aria-label="Render pair"><span class="lab">Pair</span></div>
+        <div class="wipe">
+          <img class="a" alt="" width="1280" height="720" loading="lazy">
+          <img class="b" alt="" width="1280" height="720" loading="lazy">
+          <span class="bar" aria-hidden="true"></span>
+          <span class="mono tag l" aria-hidden="true">Raw</span><span class="mono tag r" aria-hidden="true">AI</span>
+          <input type="range" min="0" max="100" step="0.5" value="50" aria-label="Compare: raw render on the left, AI version on the right">
+        </div>
+        <figcaption><span class="mono" id="wipe-cap"></span><span>Left of the line: raw render. Right: AI version.</span></figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="sec" id="ai" aria-labelledby="h-ai">
+  <section class="sec" id="sources" aria-labelledby="h-sources" data-build-end>
     <div class="sec-text">
-      <p class="mono idx">12 / 15 · Tower</p>
-      <h2 id="h-ai">AI images</h2>
-      <div class="txt">
-        <p>The renders, restyled with AI, and the tower placed in Barcelona.</p>
-      </div>
-    </div>
-    <div class="sec-media">
-      <div class="slots">
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering1_AI.jpg" data-cap="Rendering1_AI"><img src="assets/img/sm/Rendering1_AI.jpg" alt="AI version of the tower with the Cloud façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Rendering1_AI</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering2_AI.jpg" data-cap="Rendering2_AI"><img src="assets/img/sm/Rendering2_AI.jpg" alt="AI version of the office floor render" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Rendering2_AI</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image2.jpg" data-cap="Project1_AI_image2 · The Tulips façade"><img src="assets/img/sm/Project1_AI_image2.jpg" alt="The tower with the Tulips façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image2</span></figcaption></figure>
-        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image4.jpg" data-cap="Project1_AI_image4 · The office floor"><img src="assets/img/sm/Project1_AI_image4.jpg" alt="AI image of the curved office corridor with glass offices" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image4</span></figcaption></figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="critique" aria-labelledby="h-critique" data-build-end>
-    <div class="sec-text">
-      <p class="mono idx">13 / 15</p>
-      <h2 id="h-critique">Revit critique</h2>
-      <div class="txt">
-        <ul>
-          <li>Revit knows doors and rooms, not people. A body, its sight and its memory had to become parameters plus an outside engine.</li>
-          <li>Parameters pass well through nested families, but slabs wait for Update to Face after the mass changes.</li>
-          <li>Curtain-wall doors have no location point, and the API's FBX export drops materials. Both needed workarounds.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="sec-media"></div>
-  </section>
-
-  <section class="sec" id="aiuse" aria-labelledby="h-aiuse">
-    <div class="sec-text">
-      <p class="mono idx">14 / 15</p>
-      <h2 id="h-aiuse">AI use</h2>
-      <div class="txt">
-        <p>AI tools were used for the AI images and restyled renderings, for learning and troubleshooting, and for help with code and this page.</p>
-      </div>
-    </div>
-    <div class="sec-media"></div>
-  </section>
-
-  <section class="sec" id="refs" aria-labelledby="h-refs">
-    <div class="sec-text">
-      <p class="mono idx">15 / 15</p>
-      <h2 id="h-refs">References</h2>
+      <p class="mono idx">11 / 11</p>
+      <h2 id="h-sources">Sources</h2>
       <div class="txt refs">
+        <p>AI tools were used for the AI images and restyled renderings, for learning and troubleshooting, and for help with code and this page.</p>
         <ul>
           <li>Ateliers Jean Nouvel. Torre Agbar, Barcelona, 2005.</li>
           <li>Helbing, D., Farkas, I., &amp; Vicsek, T. (2000). Simulating dynamical features of escape panic. <i>Nature, 407</i>, 487–490.</li>
           <li>Weidmann, U. (1993). <i>Transporttechnik der Fussgänger</i>. ETH Zürich.</li>
           <li>Pheasant, S., &amp; Haslegrave, C. M. (2006). <i>Bodyspace</i> (3rd ed.). CRC Press.</li>
-          <li>CDC. National Health and Nutrition Examination Survey (NHANES), anthropometric reference data.</li>
+          <li>CDC. NHANES anthropometric reference data.</li>
           <li>Boyce, K. E., Shields, T. J., &amp; Silcock, G. W. H. (1999). Toward the characterization of building occupancies for fire safety engineering. <i>Fire Technology, 35</i>(1).</li>
-          <li>Sime, J. D. (1985). Movement toward the familiar. <i>Environment and Behavior, 17</i>(6), 697–724.</li>
           <li>U.S. Department of Justice (2010). ADA Standards for Accessible Design, 404.2.3.</li>
-          <li>LED source images (Pinterest): <a href="https://www.pinterest.com/pin/1075727061021989938/" target="_blank" rel="noopener">Image 1</a>, <a href="https://www.pinterest.com/pin/914160424368386745/" target="_blank" rel="noopener">Image 2</a>, <a href="https://www.pinterest.com/pin/1040190845209228923/" target="_blank" rel="noopener">Image 3</a>.</li>
+          <li>LED source images (Pinterest): <a href="https://www.pinterest.com/pin/1075727061021989938/" target="_blank" rel="noopener">1</a>, <a href="https://www.pinterest.com/pin/914160424368386745/" target="_blank" rel="noopener">2</a>, <a href="https://www.pinterest.com/pin/1040190845209228923/" target="_blank" rel="noopener">3</a>.</li>
         </ul>
       </div>
     </div>
@@ -467,7 +443,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
   </footer>
 </main>
 
-<p class="mono readout" id="readout" aria-hidden="true">Human · stature 5.75 ft · eye height 5.38 ft</p>
+<p class="mono readout" id="readout" aria-hidden="true">VA · walker · eye 5.38 ft · clear width 2.50 ft</p>
 
 <dialog id="lb" aria-label="Image at full size">
   <div class="lb-inner">
@@ -481,10 +457,27 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
   </div>
 </dialog>
 
+<script src="assets/data/va.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function () {
   'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function s(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function h(tag, attrs, text) {
+    var n = document.createElement(tag);
+    for (var k in attrs || {}) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function f2(v) { return v.toFixed(2); }
+  function mmss(t) { t = Math.max(0, Math.round(t)); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
 
   // ---------- lightbox: images open at full size ----------
   var dlg = document.getElementById('lb'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
@@ -504,18 +497,290 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     });
   });
 
-  // ---------- the scene: a body of particles and contour lines that stays a body through the human
-  //            sections and becomes Torre Agbar through the tower sections ----------
+  // ---------- 01 the body: VA Body.rfa's formulas (Ledger.cs), Adult Male P50 ----------
+  var BODIES = { // clear width ft, speed ft/s
+    Ambulant: { clear: 1.6 + 0.25, speed: 4.40 },
+    Cane: { clear: 1.6 + 0.5, speed: 2.66 },
+    Walker: { clear: 2.5, speed: 1.87 },
+    Wheelchair: { clear: 2.6667, speed: 2.26 }
+  };
+  var body = { mob: 'Walker', pose: 'Standing', delta: 0 };
+  function geom(b) {
+    var S = 5.75 + b.delta, chair = b.mob === 'Wheelchair', seated = chair || b.pose === 'Sitting';
+    var seat = chair ? 1.6 : 0.25 * S;
+    return {
+      S: S, chair: chair, seated: seated, seat: seat,
+      eye: seated ? seat + 0.45 * S : 0.936 * S,
+      top: seated ? seat + 0.52 * S : S,
+      neck: seated ? seat + 0.39 * S : 0.87 * S,
+      shoulder: seated ? seat + 0.34 * S : 0.818 * S,
+      hip: seated ? seat : 0.53 * S,
+      hand: seated ? seat + 0.09 * S : 0.485 * S,
+      thigh: seat + 0.09 * S,
+      shin0: chair ? 1.6 * 0.2 : 0,
+      halfHead: 0.05 * S,
+      clear: BODIES[b.mob].clear, speed: BODIES[b.mob].speed
+    };
+  }
+  var listeners = [];
+  function setBody(k, v) { body[k] = v; if (body.mob === 'Wheelchair') body.pose = 'Sitting'; listeners.forEach(function (fn) { fn(); }); }
+  function mobButtons(seg) {
+    var btns = Object.keys(BODIES).map(function (m) {
+      var b = h('button', { class: 'btn', type: 'button', 'aria-pressed': 'false' }, m);
+      b.addEventListener('click', function () { setBody('mob', m); });
+      seg.appendChild(b); return b;
+    });
+    listeners.push(function () { btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.textContent === body.mob)); }); });
+  }
+
+  (function bodyVis() {
+    var root = document.getElementById('bodyvis'), segs = root.querySelectorAll('.seg'), svg = root.querySelector('svg');
+    var readings = root.querySelector('.readings'), range = root.querySelector('input[type=range]');
+    mobButtons(segs[0]);
+    var poseBtns = ['Standing', 'Sitting'].map(function (p) {
+      var b = h('button', { class: 'btn', type: 'button', 'aria-pressed': 'false' }, p);
+      b.addEventListener('click', function () { setBody('pose', p); });
+      segs[1].appendChild(b); return b;
+    });
+    range.addEventListener('input', function () { setBody('delta', parseFloat(range.value)); });
+    var cells = {};
+    ['Stature', 'Eye height', 'Clear width', 'Speed'].forEach(function (k) {
+      var d = h('div'); d.appendChild(h('span', { class: 'k' }, k)); cells[k] = h('span', { class: 'v' }); d.appendChild(cells[k]); readings.appendChild(d);
+    });
+    var LIGHT = '#c9c9ce', DARK = '#6d6d75', LINE = 'rgba(236,236,238,.55)';
+    function rect(x0, z0, x1, z1, fill) { s('rect', { x: Math.min(x0, x1), y: -Math.max(z0, z1), width: Math.abs(x1 - x0), height: Math.abs(z1 - z0), fill: fill }, svg); }
+    function draw() {
+      var g = geom(body);
+      svg.textContent = '';
+      s('line', { x1: -2.3, y1: 0, x2: 2.3, y2: 0, stroke: LINE, 'stroke-width': 0.02 }, svg);
+      // aids and seat
+      if (g.chair) {
+        [-1, 1].forEach(function (sd) { s('rect', { x: sd > 0 ? 1.0 : -1.12, y: -2.0, width: 0.12, height: 2.0, rx: 0.06, fill: 'none', stroke: LINE, 'stroke-width': 0.03 }, svg); });
+        s('line', { x1: -0.95, y1: -g.seat, x2: 0.95, y2: -g.seat, stroke: LINE, 'stroke-width': 0.05 }, svg);
+        s('line', { x1: -0.5, y1: -g.shin0, x2: 0.5, y2: -g.shin0, stroke: LINE, 'stroke-width': 0.05 }, svg);
+      } else if (g.seated) {
+        s('line', { x1: -0.85, y1: -g.seat, x2: 0.85, y2: -g.seat, stroke: LINE, 'stroke-width': 0.05 }, svg);
+        [-0.8, 0.8].forEach(function (x) { s('line', { x1: x, y1: -g.seat, x2: x, y2: 0, stroke: LINE, 'stroke-width': 0.04 }, svg); });
+      }
+      if (body.mob === 'Walker') {
+        s('polyline', { points: [-1.05, 0, -1.05, -g.hand - 0.1, 1.05, -g.hand - 0.1, 1.05, 0].join(' '), fill: 'none', stroke: LINE, 'stroke-width': 0.05 }, svg);
+      } else if (body.mob === 'Cane') {
+        s('polyline', { points: [0.98, 0, 0.98, -g.hand - 0.05, 0.86, -g.hand - 0.05].join(' '), fill: 'none', stroke: LINE, 'stroke-width': 0.05 }, svg);
+      }
+      // the figure: the family's reference planes (legs, torso, arms, head)
+      var hw = 0.8, ht = 0.56, gap = 0.048;
+      if (g.seated) { rect(-ht, g.shin0, -gap, g.thigh, DARK); rect(gap, g.shin0, ht, g.thigh, DARK); }
+      else { rect(-ht, 0, -gap, g.hip, DARK); rect(gap, 0, ht, g.hip, DARK); }
+      rect(-ht, g.hip, ht, g.neck, LIGHT);
+      rect(-hw, g.hand, -ht - 0.02, g.shoulder, LIGHT); rect(ht + 0.02, g.hand, hw, g.shoulder, LIGHT);
+      rect(-g.halfHead, g.neck, g.halfHead, g.top, '#e9e9ec');
+      // eye height and stature
+      s('line', { x1: -1.3, y1: -g.eye, x2: 2.0, y2: -g.eye, stroke: '#ececee', 'stroke-width': 0.025, 'stroke-dasharray': '0.08 0.06' }, svg);
+      var t1 = s('text', { x: -2.3, y: -g.eye - 0.08, 'font-size': 0.24 }, svg); t1.textContent = 'eye ' + f2(g.eye) + ' ft';
+      s('line', { x1: 1.5, y1: 0, x2: 1.5, y2: -g.top, stroke: LINE, 'stroke-width': 0.02 }, svg);
+      s('line', { x1: 1.4, y1: -g.top, x2: 1.6, y2: -g.top, stroke: LINE, 'stroke-width': 0.02 }, svg);
+      var t2 = s('text', { x: 1.62, y: -g.top / 2, 'font-size': 0.24 }, svg); t2.textContent = f2(g.top) + ' ft';
+      // plan: the disc the engine walks with
+      var cx = 4.6, cy = -3.4, r = g.clear / 2;
+      s('circle', { cx: cx, cy: cy, r: r, fill: 'rgba(236,236,238,.07)', stroke: '#ececee', 'stroke-width': 0.03, 'stroke-dasharray': '0.1 0.07' }, svg);
+      s('rect', { x: cx - 0.8, y: cy - 0.46, width: 1.6, height: 0.92, rx: 0.3, fill: LIGHT }, svg);
+      s('circle', { cx: cx, cy: cy, r: g.halfHead, fill: '#e9e9ec', stroke: '#000', 'stroke-width': 0.02 }, svg);
+      s('line', { x1: cx, y1: cy - r - 0.15, x2: cx, y2: cy - r - 0.15 - g.speed * 0.35, stroke: '#ececee', 'stroke-width': 0.04 }, svg);
+      s('polyline', { points: [cx - 0.12, cy - r - 0.05 - g.speed * 0.35, cx, cy - r - 0.2 - g.speed * 0.35, cx + 0.12, cy - r - 0.05 - g.speed * 0.35].join(' '), fill: 'none', stroke: '#ececee', 'stroke-width': 0.04 }, svg);
+      var t3 = s('text', { x: cx, y: cy + r + 0.45, 'font-size': 0.24, 'text-anchor': 'middle' }, svg); t3.textContent = 'plan · ' + f2(g.clear) + ' ft';
+      var t4 = s('text', { x: cx + 0.2, y: cy - r - 0.3 - g.speed * 0.175, 'font-size': 0.24 }, svg); t4.textContent = g.speed.toFixed(2) + ' ft/s';
+      cells['Stature'].textContent = f2(g.S) + ' ft';
+      cells['Eye height'].textContent = f2(g.eye) + ' ft';
+      cells['Clear width'].textContent = f2(g.clear) + ' ft';
+      cells['Speed'].textContent = g.speed.toFixed(2) + ' ft/s';
+      poseBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.textContent === body.pose)); b.disabled = g.chair && b.textContent === 'Standing'; });
+      humanReadout = 'VA · ' + body.mob.toLowerCase() + ' · eye ' + f2(g.eye) + ' ft · clear width ' + f2(g.clear) + ' ft';
+    }
+    listeners.push(draw);
+  })();
+
+  // ---------- floor plan, shared by the access map and the replay (Pawn engine snapshot of Project1_v01) ----------
+  var VA = window.VA_DATA;
+  function drawPlan(svg, opts) {
+    var P = VA.plan, layers = {};
+    layers.rooms = s('g', {}, svg);
+    P.furniture.forEach(function (r) { s('rect', { x: r[0], y: -r[3], width: r[2] - r[0], height: r[3] - r[1], fill: '#1c1c20' }, svg); });
+    layers.under = s('g', {}, svg);
+    P.walls.forEach(function (w) {
+      s('polyline', { points: w.p.map(function (q) { return q[0] + ',' + (-q[1]); }).join(' '), fill: 'none', stroke: '#8d8d94', 'stroke-width': Math.max(0.35, w.w * 0.6), 'stroke-linejoin': 'round' }, svg);
+    });
+    P.doors.forEach(function (d) {
+      var hw = d.w / 2, fx = d.f[0], fy = d.f[1];
+      s('line', { x1: d.x - fy * hw, y1: -(d.y + fx * hw), x2: d.x + fy * hw, y2: -(d.y - fx * hw), stroke: '#000', 'stroke-width': 1.2 }, svg);
+    });
+    layers.over = s('g', {}, svg);
+    var e = VA.entrance;
+    s('path', { d: 'M' + (e[0] - 2) + ',' + (-e[1]) + 'h4M' + e[0] + ',' + (-e[1] - 2) + 'v4', stroke: '#ececee', 'stroke-width': 0.6 }, svg);
+    return layers;
+  }
+  function roomPath(r) { return r.loops.map(function (lp) { return 'M' + lp.map(function (q) { return q[0] + ',' + (-q[1]); }).join('L') + 'Z'; }).join(''); }
+
+  // ---------- 02 access: which rooms each body can enter ----------
+  (function accessVis() {
+    var root = document.getElementById('accessvis'), svg = root.querySelector('svg'), sum = document.getElementById('access-sum');
+    mobButtons(root.querySelector('.seg'));
+    var L = drawPlan(svg), shapes = {};
+    VA.plan.rooms.forEach(function (r) {
+      var p = s('path', { d: roomPath(r), 'fill-rule': 'evenodd', stroke: 'none' }, L.rooms);
+      var t = s('text', { x: r.c[0], y: -r.c[1] + 1.2, 'font-size': 3.2, 'text-anchor': 'middle' }, svg); t.textContent = r.n;
+      shapes[r.n] = { p: p, t: t, name: r.name };
+    });
+    function draw() {
+      var ok = VA.reach[body.mob], n = 0;
+      Object.keys(shapes).forEach(function (k) {
+        var yes = !!ok[k]; if (yes) n++;
+        shapes[k].p.setAttribute('fill', yes ? 'rgba(236,236,238,.30)' : 'rgba(236,236,238,0)');
+        shapes[k].t.style.fill = yes ? '#ececee' : '#55555c';
+      });
+      sum.textContent = body.mob + ' · ' + Math.round(BODIES[body.mob].clear * 12) + ' in · enters ' + n + ' of ' + Object.keys(shapes).length + ' rooms';
+    }
+    listeners.push(draw);
+  })();
+
+  // ---------- 03 brain and memory: three runs of the same person, replayed with its memory ----------
+  (function replay() {
+    var root = document.getElementById('replay'), svg = root.querySelector('svg');
+    var playBtn = document.getElementById('rp-play'), range = document.getElementById('rp-t'), clock = document.getElementById('rp-clock');
+    var tbody = root.querySelector('tbody');
+    var COLORS = { A_visit1: '#e8a33d', B_visit2: '#5aa2db', C_staff: '#ececee' };
+    var STATE = { w: 'walking', s: 'searching', p: 'waiting', d: 'done', q: 'queued' };
+    var L = drawPlan(svg);
+    VA.stops.forEach(function (st, i) {
+      s('circle', { cx: st.c[0], cy: -st.c[1], r: 2.2, fill: 'none', stroke: '#ececee', 'stroke-width': 0.5 }, L.over);
+      var t = s('text', { x: st.c[0] + 3, y: -st.c[1] - 2.5, 'font-size': 3 }, L.over); t.textContent = 'S' + (i + 1);
+    });
+    var memG = s('g', {}, L.under), memD = s('g', {}, L.over);
+    var runs = VA.runs.map(function (r) {
+      var cum = [0];
+      for (var i = 1; i < r.track.length; i++) cum.push(cum[i - 1] + Math.hypot(r.track[i][1] - r.track[i - 1][1], r.track[i][2] - r.track[i - 1][2]));
+      var line = s('polyline', { fill: 'none', stroke: COLORS[r.key], 'stroke-width': r.key === 'C_staff' ? 0.7 : 0.9, 'stroke-dasharray': r.key === 'C_staff' ? '1.6 1.4' : 'none', 'stroke-linejoin': 'round', opacity: 0.95 }, L.over);
+      var dot = s('circle', { r: 1.6, fill: COLORS[r.key], stroke: '#000', 'stroke-width': 0.4 }, L.over);
+      return { r: r, cum: cum, line: line, dot: dot, end: r.track[r.track.length - 1][0] };
+    });
+    var T = Math.ceil(Math.max.apply(null, runs.map(function (x) { return x.end; })));
+    range.max = T;
+    // rows: pick whose memory is drawn
+    var sel = 0, rows = runs.map(function (x, i) {
+      var tr = h('tr'), td = h('td'), b = h('button', { type: 'button', 'aria-pressed': 'false' });
+      var sw = h('span', { class: 'sw' }); sw.style.background = COLORS[x.r.key];
+      b.appendChild(sw); b.appendChild(document.createTextNode(x.r.label));
+      b.addEventListener('click', function () { sel = i; buildMemory(); update(); });
+      td.appendChild(b); tr.appendChild(td);
+      var cells = ['state', 'time', 'walked', 'seen', 'doors'].map(function (k, j) { var c = h('td', j ? { class: 'n' } : {}); tr.appendChild(c); return c; });
+      tbody.appendChild(tr);
+      return { tr: tr, b: b, c: cells };
+    });
+    var squares = [], doorsRings = [];
+    function buildMemory() {
+      memG.textContent = ''; memD.textContent = ''; squares = []; doorsRings = [];
+      var r = runs[sel].r, col = COLORS[r.key];
+      function sq(c, t, prior) {
+        var el = s('rect', { x: c[0] * 10, y: -(c[1] * 10 + 10), width: 10, height: 10, fill: prior ? 'rgba(236,236,238,.10)' : col, 'fill-opacity': prior ? 1 : 0.16 }, memG);
+        squares.push({ el: el, t: t });
+      }
+      function ring(i, t, prior) {
+        var d = VA.plan.doors[i]; if (!d) return;
+        var el = s('circle', { cx: d.x, cy: -d.y, r: 2.4, fill: 'none', stroke: prior ? '#8d8d94' : col, 'stroke-width': 0.6 }, memD);
+        doorsRings.push({ el: el, t: t });
+      }
+      r.prior.s.forEach(function (c) { sq(c, -1, true); });
+      r.prior.d.forEach(function (i) { ring(i, -1, true); });
+      r.events.forEach(function (e) { if (e[1] === 's') sq(e[2], e[0], false); else if (e[1] === 'd') ring(e[2], e[0], false); });
+      rows.forEach(function (row, i) { row.tr.classList.toggle('on', i === sel); row.b.setAttribute('aria-pressed', String(i === sel)); });
+    }
+    var t = 0;
+    function update() {
+      runs.forEach(function (x, i) {
+        var tr = x.r.track, k = 0;
+        while (k < tr.length && tr[k][0] <= t) k++;
+        var last = tr[Math.max(0, k - 1)];
+        x.line.setAttribute('points', tr.slice(0, Math.max(1, k)).map(function (q) { return q[1] + ',' + (-q[2]); }).join(' '));
+        x.dot.setAttribute('cx', last[1]); x.dot.setAttribute('cy', -last[2]);
+        var done = t > x.end;
+        var row = rows[i].c;
+        row[0].textContent = done ? 'done' : (STATE[last[3]] || last[3]);
+        row[1].textContent = mmss(Math.min(t, x.r.time));
+        row[2].textContent = (done ? x.r.dist : Math.round(x.cum[Math.max(0, k - 1)])) + ' ft';  // the engine's own total once done
+        var r = x.r, nS = r.prior.s.length, nD = r.prior.d.length;
+        r.events.forEach(function (e) { if (e[0] <= t) { if (e[1] === 's') nS++; else if (e[1] === 'd') nD++; } });
+        row[3].textContent = (nS * 100).toLocaleString('en-US') + ' ft²';
+        row[4].textContent = nD;
+      });
+      squares.forEach(function (q) { q.el.style.display = q.t <= t ? '' : 'none'; });
+      doorsRings.forEach(function (q) { q.el.style.display = q.t <= t ? '' : 'none'; });
+      range.value = t; clock.textContent = mmss(t);
+    }
+    var playing = false, last = 0, SPEED = 8;
+    function tick(now) {
+      if (!playing) return;
+      var dt = Math.min(0.1, (now - last) / 1000); last = now;
+      t = Math.min(T, t + dt * SPEED); update();
+      if (t >= T) { playing = false; playBtn.textContent = 'Replay'; return; }
+      requestAnimationFrame(tick);
+    }
+    function play() { if (t >= T) t = 0; playing = true; playBtn.textContent = 'Pause'; last = performance.now(); requestAnimationFrame(tick); }
+    function pause() { playing = false; playBtn.textContent = 'Play'; }
+    playBtn.addEventListener('click', function () { playing ? pause() : play(); });
+    range.addEventListener('input', function () { pause(); t = parseFloat(range.value); update(); });
+    buildMemory(); update();
+    if (!reduce && 'IntersectionObserver' in window) {
+      var once = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { once.disconnect(); play(); } }, { threshold: 0.5 });
+      once.observe(svg);
+    }
+  })();
+
+  // ---------- 10 raw render and its AI version, on top of each other ----------
+  (function wipe() {
+    var root = document.getElementById('wipe'), box = root.querySelector('.wipe'), a = box.querySelector('img.a'), b = box.querySelector('img.b');
+    var range = box.querySelector('input'), cap = document.getElementById('wipe-cap'), seg = root.querySelector('.seg');
+    var PAIRS = [
+      { name: 'Office', raw: 'Rendering2', ai: 'Rendering2_AI' },
+      { name: 'Corridor', raw: 'Raw_Renders_Image5', ai: 'Project1_AI_image3' },
+      { name: 'Open office', raw: 'Raw_Renders_Image7', ai: 'Project1_AI_image4' },
+      { name: 'Tower', raw: 'Rendering1', ai: 'Rendering1_AI' }
+    ];
+    var btns = PAIRS.map(function (p, i) {
+      var bt = h('button', { class: 'btn', type: 'button', 'aria-pressed': 'false' }, p.name);
+      bt.addEventListener('click', function () { show(i); });
+      seg.appendChild(bt); return bt;
+    });
+    function show(i) {
+      var p = PAIRS[i];
+      a.src = 'assets/img/wipe/' + p.raw + '.jpg'; a.alt = 'Raw render ' + p.raw;
+      b.src = 'assets/img/wipe/' + p.ai + '.jpg'; b.alt = 'AI version ' + p.ai;
+      cap.textContent = p.raw + ' · ' + p.ai;
+      btns.forEach(function (bt, j) { bt.setAttribute('aria-pressed', String(i === j)); });
+    }
+    range.addEventListener('input', function () { box.style.setProperty('--x', range.value + '%'); });
+    show(0);
+  })();
+
+  // ---------- the scene: a body of particles and contour lines that stays a body through the VA sections and
+  //            becomes Torre Agbar through the tower sections ----------
   var readout = document.getElementById('readout');
-  var HUMAN_READOUT = 'Human · stature 5.75 ft · eye height 5.38 ft';
+  var humanReadout = readout.textContent;
+  listeners.forEach(function (fn) { fn(); });
   var S = 36, F = 35, PANELS = S * F; // 36 columns x 35 rows = 1,260 panels
+  var lastText = '', pNow = 0;
+  function paintReadout(p) {
+    var floors = 0;
+    for (var f2i = 0; f2i < F; f2i++) if ((p * 1.35 - (f2i + 1) / F - 0.05) / 0.3 >= 1) floors++;
+    var text = p < 0.002 ? humanReadout :
+      'Human → façade · floor ' + String(floors).padStart(2, '0') + ' / ' + F + ' · panels ' + String(floors * S).padStart(4, '0') + ' / ' + PANELS;
+    if (text !== lastText) { lastText = text; readout.textContent = text; }
+  }
+  listeners.push(function () { paintReadout(pNow); });
   (function scene() {
     var canvas = document.getElementById('scene');
     if (!window.THREE || !canvas) return;
     var renderer;
     try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); } catch (e) { return; }
     if (!renderer.getContext()) return;
-    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     var scene3 = new THREE.Scene();
@@ -564,8 +829,8 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     var seed = 653;
     function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
     var n = 0;
-    for (var f = 0; f < F; f++) for (var s = 0; s < S; s++) for (var a = 0; a < A.length; a++) for (var b = 0; b < B.length; b++) {
-      var th = (s + A[a]) / S * Math.PI * 2, v = (f + B[b]) / F;
+    for (var f = 0; f < F; f++) for (var sc = 0; sc < S; sc++) for (var a = 0; a < A.length; a++) for (var b = 0; b < B.length; b++) {
+      var th = (sc + A[a]) / S * Math.PI * 2, v = (f + B[b]) / F;
       aT[n * 4] = th; aT[n * 4 + 1] = v;
       aT[n * 4 + 2] = th + (rnd() - 0.5) * 0.5; aT[n * 4 + 3] = Math.min(0.999, Math.max(0.001, v + (rnd() - 0.5) * 0.04));
       var inner = rnd() < 0.45;
@@ -639,10 +904,10 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     group.traverse(function (o) { o.frustumCulled = false; });
 
     function size() {
-      var w = window.innerWidth, h = window.innerHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      var fit = h / w > 1.2 ? 0.66 : 0.84; // share of the viewport height the figure takes
+      var w = window.innerWidth, hh = window.innerHeight;
+      renderer.setSize(w, hh, false);
+      camera.aspect = w / hh;
+      var fit = hh / w > 1.2 ? 0.66 : 0.84; // share of the viewport height the figure takes
       var d = (10.6 / fit) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
       camera.position.set(0, 0.6, d);
       camera.lookAt(0, 0, 0);
@@ -652,7 +917,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     window.addEventListener('resize', size);
 
     // the figure stays a body until the first tower section reaches mid-screen, and is a finished tower
-    // when the notes after the tower sections reach mid-screen
+    // when the section after the tower sections reaches mid-screen
     var startEl = document.querySelector('[data-build-start]'), endEl = document.querySelector('[data-build-end]');
     var target = 0, spin = 0, p = 0, t0 = performance.now();
     function midY(el, y) { return el.getBoundingClientRect().top + y - window.innerHeight * 0.5; }
@@ -667,20 +932,16 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     window.addEventListener('scroll', scrollP, { passive: true });
     window.addEventListener('resize', scrollP);
     scrollP(); p = target;
-    var lastText = '';
     function frame(now) {
       p += (target - p) * (reduce ? 1 : 0.08);
       if (Math.abs(target - p) < 0.001) p = target; // the easing never quite arrives; the last floor needs p = 1
-      var t = reduce ? 0 : (now - t0) / 1000;
-      U.uP.value = p; U.uTime.value = t;
-      group.rotation.y = t * 0.05 + spin * 2.2;
+      pNow = p;
+      var tt = reduce ? 0 : (now - t0) / 1000;
+      U.uP.value = p; U.uTime.value = tt;
+      group.rotation.y = tt * 0.05 + spin * 2.2;
       group.position.y = -0.15;
       renderer.render(scene3, camera);
-      var floors = 0;
-      for (var f2 = 0; f2 < F; f2++) if ((p * 1.35 - (f2 + 1) / F - 0.05) / 0.3 >= 1) floors++;
-      var text = p < 0.002 ? HUMAN_READOUT :
-        'Human → façade · floor ' + String(floors).padStart(2, '0') + ' / ' + F + ' · panels ' + String(floors * S).padStart(4, '0') + ' / ' + PANELS;
-      if (text !== lastText) { lastText = text; readout.textContent = text; }
+      paintReadout(p);
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
