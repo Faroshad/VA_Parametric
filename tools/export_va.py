@@ -1,7 +1,7 @@
 """Data for the VA page (assets/data/va.js): the floor plan, the access table per body, and three runs of the same
 person (Visitor 1st visit, Visitor 2nd visit, Staff) with the moment each 10 ft square, door and room enters memory.
 Runs again on copies (scratch folders) with a recorder wrapped around Person.perceive; the engine itself is unchanged."""
-import json, os, shutil, sys
+import json, math, os, shutil, sys
 
 import run_scenarios as rs
 from pawn_engine import sim as S
@@ -35,6 +35,24 @@ def perceive(self):
 
 S.Person.perceive = perceive
 
+# ---- record a Visitor's door choices (the deterministic part of the score; the engine's own noise is left alone) --
+DEC = []
+_search = S.Person.search
+
+
+def search(self):
+    x, y = self.xy
+    cands = [(d.uid, to, math.hypot(d.x - x, d.y - y),
+              self.brain.curiosity - math.hypot(d.x - x, d.y - y) / 40.0 - (1.5 if d.uid == self.last_door else 0))
+             for d, to in self.frontier()]
+    ok = _search(self)
+    goal = self.goal[1] if ok and self.goal and self.goal[0] == "search" else None
+    DEC.append({"t": round(self.sim.t, 1), "x": x, "y": y, "cands": cands, "goal": goal})
+    return ok
+
+
+S.Person.search = search
+
 # ---- plan ---------------------------------------------------------------------------------------------------
 rooms = [r for r in snap["rooms"] if r["level"] == L]
 room_no = {r["uid"]: r["number"] for r in rooms}
@@ -60,6 +78,7 @@ for tag, brain, root, label in [("A_visit1", "Visitor", "agents_visitor", "Visit
                                 ("B_visit2", "Visitor", "agents_visitor", "Visitor · 2nd visit"),
                                 ("C_staff", "Staff", "agents_staff", "Staff")]:
     LOG.clear()
+    DEC.clear()
     rs.scenario(tag, brain, root)
     res = json.load(open(os.path.join(rs.OUT, tag, "results.json"), encoding="utf-8"))
     a = res["agents"][rs.FARSHAD]
@@ -73,6 +92,10 @@ for tag, brain, root, label in [("A_visit1", "Visitor", "agents_visitor", "Visit
         "track": [[f[0], R1(f[1]), R1(f[2]), STATE.get(f[5], f[5][:1])] for f in a["frames"][::2]],   # every 1 s: t, x, y, state
         "prior": {"s": sorted(list(c) for c in sq), "d": sorted(door_ix[u] for u in dr if u in door_ix), "r": sorted(room_no.get(u, "?") for u in rm)},
         "events": [[t, k, conv(k, v)] for t, k, v in log["events"] if not (k == "d" and v not in door_ix)],
+        # each door search: time, where, candidates [door, room it leads to, distance ft, score without noise], door tried
+        "decisions": [{"t": dc["t"], "at": [R1(dc["x"]), R1(dc["y"])],
+                       "cands": [[door_ix[u], room_no.get(to, "?"), R1(dist), round(sc, 3)] for u, to, dist, sc in dc["cands"] if u in door_ix],
+                       "goal": door_ix.get(dc["goal"], "explore" if dc["goal"] == "explore" else None)} for dc in DEC],
     })
     print(tag, len(runs[-1]["track"]), "samples,", len(runs[-1]["events"]), "memory events, prior", {k: len(v) for k, v in runs[-1]["prior"].items()})
 
@@ -84,6 +107,10 @@ data = {
     "plan": plan,
     "reach": {b: {n: v["ok"] for n, v in t.items()} for b, t in reach.items()},
     "reach_why": {b: {n: v["why"].split(": ", 2)[-1] for n, v in t.items() if not v["ok"]} for b, t in reach.items()},
+    # the brain profiles as the model's Pawn Brain types hold them, and the furniture heights on this floor (ft)
+    "brains": {b["name"]: {k: b[k] for k in ("Pawn Prior Map Knowledge", "Pawn Curiosity", "Pawn Patience", "Pawn Pre-Movement")}
+               for b in snap["brains"]},
+    "furniture_heights": sorted({round(o["max"][2] - o["min"][2], 2) for o in snap["obstacles"] if o["level"] == L}),
     "runs": runs,
 }
 os.makedirs(os.path.dirname(OUT_JSON), exist_ok=True)

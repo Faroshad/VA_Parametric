@@ -122,6 +122,8 @@ input[type=range] { width: 100%; accent-color: var(--ink); margin: 0; }
 .runs .sw { width: .8em; height: .8em; display: inline-block; }
 .timebar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .6rem; align-items: center; font-family: var(--f-mono); font-size: .68rem; color: var(--ink-soft); }
 .scroll-x { overflow-x: auto; }
+.brainfig { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: .6rem; align-items: center; }
+.legline { color: var(--ink); font-size: .66rem; }
 .txt b { font-weight: 500; }
 /* raw render / AI: the AI image is clipped to the right of the line */
 .wipe { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--hair); --x: 50%; }
@@ -165,6 +167,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
   .slots { grid-template-columns: minmax(0, 1fr); }
   .slots.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
   .readings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .brainfig { grid-template-columns: minmax(0, 1fr); }
   .readout { white-space: normal; width: calc(100vw - 32px); text-align: center; line-height: 1.6; }
 }
 </style>
@@ -196,7 +199,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="body" aria-labelledby="h-body">
     <div class="sec-text">
-      <p class="mono idx">01 / 11 · VA</p>
+      <p class="mono idx">01 / 12 · VA</p>
       <h2 id="h-body">Parametric body</h2>
       <p class="mono file">VA Body.rfa</p>
       <div class="txt">
@@ -220,9 +223,39 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     </div>
   </section>
 
+  <section class="sec wide" id="brain" aria-labelledby="h-brain">
+    <div class="sec-text">
+      <p class="mono idx">02 / 12 · VA</p>
+      <h2 id="h-brain">Parametric brain</h2>
+      <p class="mono file">VA Brain.rfa</p>
+      <div class="txt">
+        <p>The brain is a family too; its type is a profile. Staff know the plan. A Visitor knows only what it has walked and seen, and searches door by door: it cannot tell which unseen room is the one it wants.</p>
+      </div>
+      <div class="eq">
+        <p><span class="k">Sight</span> a door is known once a line from the eyes reaches it; furniture blocks only if taller than the eyes</p>
+        <p><span class="k">Search</span> s = curiosity − d/40 − 1.5 (door it came through) + noise 0–0.3; highest first, doors its body cannot pass are dropped</p>
+        <p><span class="k">Visitor</span> prior map no · curiosity 0.6 · patience 600 s · pre-movement 30 s</p>
+        <p><span class="k">Staff</span> prior map yes · curiosity 0.1 · patience 600 s · pre-movement 15 s</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="vis" id="brainvis">
+        <div class="seg" role="group" aria-label="Profile"><span class="lab">Profile</span></div>
+        <div class="seg" role="group" aria-label="Memory"><span class="lab">Memory</span></div>
+        <div class="brainfig">
+          <svg class="side" viewBox="-1.2 -9.6 11.2 10.8" role="img" aria-label="Side view: the line of sight at eye height over the floor's furniture, through a door"></svg>
+          <svg class="plan" viewBox="-63 -63 126 126" role="img" aria-label="Plan: what this brain knows when it leaves Office 02 for the Restroom, and the way it goes"></svg>
+        </div>
+        <div class="readings"></div>
+        <p class="legline mono" id="brain-leg"></p>
+        <figcaption><span class="mono">Engine record</span><span id="brain-cap"></span></figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section class="sec" id="access" aria-labelledby="h-access">
     <div class="sec-text">
-      <p class="mono idx">02 / 11 · VA</p>
+      <p class="mono idx">03 / 12 · VA</p>
       <h2 id="h-access">Body → building</h2>
       <p class="mono file">4 bodies × 9 rooms</p>
       <div class="txt">
@@ -245,11 +278,11 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec wide" id="memory" aria-labelledby="h-memory">
     <div class="sec-text">
-      <p class="mono idx">03 / 11 · VA</p>
-      <h2 id="h-memory">Brain and memory</h2>
-      <p class="mono file">VA Brain.rfa · memory/&lt;building&gt;.json</p>
+      <p class="mono idx">04 / 12 · VA</p>
+      <h2 id="h-memory">Memory</h2>
+      <p class="mono file">memory/&lt;building&gt;.json</p>
       <div class="txt">
-        <p>A Visitor plans only through what it has walked and seen; Staff know the plan. Memory is a file per person per building: 10 ft squares seen, doors seen, rooms entered.</p>
+        <p>Memory is a file per person per building: 10 ft squares seen, doors seen, rooms entered. It follows the name into the next run.</p>
         <p>Same body, same two stops, three runs. One visit is enough: with its memory, the Visitor walks Staff's route.</p>
       </div>
       <div class="eq">
@@ -270,7 +303,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec wide" id="pair" aria-labelledby="h-pair">
     <div class="sec-text">
-      <p class="mono idx">04 / 11 · VA</p>
+      <p class="mono idx">05 / 12 · VA</p>
       <h2 id="h-pair">Farshad and X</h2>
       <p class="mono file">The run in the model</p>
       <div class="txt">
@@ -291,7 +324,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="eyes" aria-labelledby="h-eyes">
     <div class="sec-text">
-      <p class="mono idx">05 / 11 · VA</p>
+      <p class="mono idx">06 / 12 · VA</p>
       <h2 id="h-eyes">What he saw</h2>
       <p class="mono file">Farshad_ego.mp4</p>
       <div class="txt">
@@ -312,7 +345,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="engine" aria-labelledby="h-engine">
     <div class="sec-text">
-      <p class="mono idx">06 / 11 · VA</p>
+      <p class="mono idx">07 / 12 · VA</p>
       <h2 id="h-engine">Engine</h2>
       <p class="mono file">Pawn engine</p>
       <div class="txt">
@@ -333,7 +366,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="critique" aria-labelledby="h-critique">
     <div class="sec-text">
-      <p class="mono idx">07 / 11</p>
+      <p class="mono idx">08 / 12</p>
       <h2 id="h-critique">Revit critique</h2>
       <div class="txt">
         <ul>
@@ -348,7 +381,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="tower" aria-labelledby="h-tower" data-build-start>
     <div class="sec-text">
-      <p class="mono idx">08 / 11 · Tower</p>
+      <p class="mono idx">09 / 12 · Tower</p>
       <h2 id="h-tower">Parametric tower</h2>
       <p class="mono file">Project1_mass.rfa · Project1_envelope.rfa</p>
       <div class="txt">
@@ -372,7 +405,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="led" aria-labelledby="h-led">
     <div class="sec-text">
-      <p class="mono idx">09 / 11 · Tower</p>
+      <p class="mono idx">10 / 12 · Tower</p>
       <h2 id="h-led">LED façade</h2>
       <p class="mono file">LED_Material</p>
       <div class="txt">
@@ -393,7 +426,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec wide" id="renders" aria-labelledby="h-renders">
     <div class="sec-text">
-      <p class="mono idx">10 / 11 · Tower</p>
+      <p class="mono idx">11 / 12 · Tower</p>
       <h2 id="h-renders">Raw render → AI</h2>
       <p class="mono file">Rendering · Rendering_AI</p>
       <div class="txt">
@@ -417,7 +450,7 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
 
   <section class="sec" id="sources" aria-labelledby="h-sources" data-build-end>
     <div class="sec-text">
-      <p class="mono idx">11 / 11</p>
+      <p class="mono idx">12 / 12</p>
       <h2 id="h-sources">Sources</h2>
       <div class="txt refs">
         <p>AI tools were used for the AI images and restyled renderings, for learning and troubleshooting, and for help with code and this page.</p>
@@ -425,7 +458,6 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
           <li>Ateliers Jean Nouvel. Torre Agbar, Barcelona, 2005.</li>
           <li>Helbing, D., Farkas, I., &amp; Vicsek, T. (2000). Simulating dynamical features of escape panic. <i>Nature, 407</i>, 487–490.</li>
           <li>Weidmann, U. (1993). <i>Transporttechnik der Fussgänger</i>. ETH Zürich.</li>
-          <li>Pheasant, S., &amp; Haslegrave, C. M. (2006). <i>Bodyspace</i> (3rd ed.). CRC Press.</li>
           <li>CDC. NHANES anthropometric reference data.</li>
           <li>Boyce, K. E., Shields, T. J., &amp; Silcock, G. W. H. (1999). Toward the characterization of building occupancies for fire safety engineering. <i>Fire Technology, 35</i>(1).</li>
           <li>U.S. Department of Justice (2010). ADA Standards for Accessible Design, 404.2.3.</li>
@@ -642,7 +674,152 @@ dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
     listeners.push(draw);
   })();
 
-  // ---------- 03 brain and memory: three runs of the same person, replayed with its memory ----------
+  // ---------- 02 the brain: what each profile knows when it leaves Office 02 (S1) for the Restroom (S2) ----------
+  (function brainVis() {
+    var root = document.getElementById('brainvis'), segs = root.querySelectorAll('.seg');
+    var side = root.querySelector('svg.side'), planSvg = root.querySelector('svg.plan');
+    var readings = root.querySelector('.readings'), legEl = document.getElementById('brain-leg'), cap = document.getElementById('brain-cap');
+    var st = { profile: 'Visitor', memory: 'Empty' };
+    var KEY = { 'Visitor/Empty': 'A_visit1', 'Visitor/After 1 visit': 'B_visit2', 'Staff': 'C_staff' };
+    var COLORS = { A_visit1: '#e8a33d', B_visit2: '#5aa2db', C_staff: '#ececee' };
+    var CAPS = {
+      A_visit1: 'First visit. Leaving Office 02 for a Restroom it has never seen, it ranks the doors it knows into rooms it does not know. Office 01 comes first and is dropped (no way in for its body); it goes into Office 04, and finds the Restroom only on its next search.',
+      B_visit2: 'Second visit. The Restroom is in its memory, so it plans straight there.',
+      C_staff: 'Staff. It knows the plan, so it plans straight there on its first visit.'
+    };
+    function run() { var k = st.profile === 'Staff' ? 'Staff' : st.profile + '/' + st.memory; return VA.runs.filter(function (r) { return r.key === KEY[k]; })[0]; }
+    // the leg from S1 to S2: from the end of the first wait to the start of the next one
+    function legOf(r) {
+      var tr = r.track, i = 0;
+      while (i < tr.length && tr[i][3] !== 'p') i++;
+      while (i < tr.length && tr[i][3] === 'p') i++;
+      var a = Math.max(0, i - 1);
+      while (i < tr.length && tr[i][3] !== 'p') i++;
+      var b = Math.min(i, tr.length - 1), d = 0;
+      for (var k = a + 1; k <= b; k++) d += Math.hypot(tr[k][1] - tr[k - 1][1], tr[k][2] - tr[k - 1][2]);
+      return { a: a, b: b, t0: tr[a][0], t1: tr[b][0], d: d };
+    }
+    // controls
+    var profBtns = ['Visitor', 'Staff'].map(function (p) {
+      var b = h('button', { class: 'btn', type: 'button', 'aria-pressed': 'false' }, p);
+      b.addEventListener('click', function () { st.profile = p; draw(); });
+      segs[0].appendChild(b); return b;
+    });
+    var memBtns = ['Empty', 'After 1 visit'].map(function (m) {
+      var b = h('button', { class: 'btn', type: 'button', 'aria-pressed': 'false' }, m);
+      b.addEventListener('click', function () { st.memory = m; draw(); });
+      segs[1].appendChild(b); return b;
+    });
+    var cells = {};
+    ['Prior map', 'Curiosity', 'Patience', 'Pre-movement'].forEach(function (k) {
+      var d = h('div'); d.appendChild(h('span', { class: 'k' }, k)); cells[k] = h('span', { class: 'v' }); d.appendChild(cells[k]); readings.appendChild(d);
+    });
+
+    // side view: the line of sight at the body's eye height, over this floor's two furniture heights, through a door
+    var LINE = 'rgba(236,236,238,.55)', LIGHT = '#c9c9ce', DARK = '#6d6d75';
+    function sr(x0, z0, x1, z1, attrs) {
+      var a = { x: Math.min(x0, x1), y: -Math.max(z0, z1), width: Math.abs(x1 - x0), height: Math.abs(z1 - z0) };
+      for (var k in attrs) a[k] = attrs[k];
+      return s('rect', a, side);
+    }
+    function label(x, y, text, anchor) { var t = s('text', { x: x, y: y, 'font-size': 0.5, 'text-anchor': anchor || 'start' }, side); t.textContent = text; }
+    function drawSide() {
+      var g = geom(body);
+      side.textContent = '';
+      s('line', { x1: -1.2, y1: 0, x2: 10, y2: 0, stroke: LINE, 'stroke-width': 0.04 }, side);
+      if (g.chair) s('circle', { cx: 0.2, cy: -1.0, r: 1.0, fill: 'none', stroke: LINE, 'stroke-width': 0.06 }, side);
+      if (g.seated) {
+        if (!g.chair) { s('line', { x1: -0.5, y1: -g.seat, x2: 1.2, y2: -g.seat, stroke: LINE, 'stroke-width': 0.06 }, side); s('line', { x1: -0.4, y1: -g.seat, x2: -0.4, y2: 0, stroke: LINE, 'stroke-width': 0.05 }, side); }
+        sr(-0.25, g.seat, 1.35, g.thigh, { fill: DARK }); sr(1.05, g.shin0, 1.35, g.thigh, { fill: DARK });
+      } else {
+        sr(-0.2, 0, 0.25, g.hip, { fill: DARK });
+      }
+      sr(-0.46, g.hip, 0.46, g.neck, { fill: LIGHT });
+      sr(-0.28, g.neck, 0.32, g.top, { fill: '#e9e9ec' });
+      s('circle', { cx: 0.27, cy: -g.eye, r: 0.09, fill: '#000' }, side);
+      // furniture on this floor (two heights), and a wall with a door opening
+      var F = VA.furniture_heights, xs = [[2.0, 3.5], [4.3, 5.2]], block = null;
+      F.slice(0, 2).forEach(function (fh, i) {
+        sr(xs[i][0], 0, xs[i][1], fh, { fill: '#1c1c20', stroke: LINE, 'stroke-width': 0.04 });
+        label((xs[i][0] + xs[i][1]) / 2, -fh + 0.7, fh.toFixed(2), 'middle');
+        if (fh > g.eye && block === null) block = xs[i][0];
+      });
+      sr(7.2, 7, 7.7, 9, { fill: '#8d8d94' });
+      s('rect', { x: 7.2, y: -7, width: 0.5, height: 7, fill: 'none', stroke: LINE, 'stroke-width': 0.04, 'stroke-dasharray': '0.15 0.12' }, side);
+      label(7.45, -9.15, 'wall · door', 'middle');
+      var x1 = block === null ? 7.45 : block;
+      s('line', { x1: 0.35, y1: -g.eye, x2: x1, y2: -g.eye, stroke: '#ececee', 'stroke-width': 0.05, 'stroke-dasharray': '0.25 0.15' }, side);
+      if (block === null) {
+        s('circle', { cx: 7.45, cy: -g.eye, r: 0.32, fill: 'none', stroke: '#ececee', 'stroke-width': 0.06 }, side);
+        label(7.95, -g.eye + 0.15, 'seen');
+      } else {
+        label(block - 0.1, -g.eye - 0.2, '× blocked', 'end');
+      }
+      label(0.9, -g.eye - 0.3, 'eye ' + g.eye.toFixed(2) + ' ft');
+      label(2.0, -0.25 + 0.95, 'furniture on this floor, ft');
+    }
+
+    // plan: what it knows when it leaves S1, the doors it ranks, the way it goes
+    var PL = drawPlan(planSvg);
+    var kn = s('g', {}, PL.under), over = s('g', {}, PL.over);
+    var roomsByN = {}; VA.plan.rooms.forEach(function (r) { roomsByN[r.n] = r; });
+    function txt(g, x, y, text, size, fill, anchor) { var t = s('text', { x: x, y: -y, 'font-size': size, 'text-anchor': anchor || 'start' }, g); t.textContent = text; if (fill) t.style.fill = fill; return t; }
+    function draw() {
+      if (st.profile === 'Staff') st.memory = 'Empty';
+      var r = run(), col = COLORS[r.key], leg = legOf(r), tr = r.track, t0 = leg.t0;
+      kn.textContent = ''; over.textContent = '';
+      // knowledge at t0
+      var rooms = {}, doors = {};
+      if (r.key === 'C_staff') {
+        VA.plan.rooms.forEach(function (rm) { rooms[rm.n] = 1; });
+        VA.plan.doors.forEach(function (d, i) { doors[i] = 1; });
+      } else {
+        r.prior.s.forEach(function (c) { s('rect', { x: c[0] * 10, y: -(c[1] * 10 + 10), width: 10, height: 10, fill: 'rgba(236,236,238,.10)' }, kn); });
+        r.prior.d.forEach(function (i) { doors[i] = 1; });
+        r.prior.r.forEach(function (n) { rooms[n] = 1; });
+        r.events.forEach(function (e) {
+          if (e[0] > t0) return;
+          if (e[1] === 's') s('rect', { x: e[2][0] * 10, y: -(e[2][1] * 10 + 10), width: 10, height: 10, fill: col, 'fill-opacity': 0.14 }, kn);
+          else if (e[1] === 'd') doors[e[2]] = 1; else rooms[e[2]] = 1;
+        });
+      }
+      Object.keys(rooms).forEach(function (n) { if (roomsByN[n]) s('path', { d: roomPath(roomsByN[n]), 'fill-rule': 'evenodd', fill: 'rgba(236,236,238,.22)' }, kn); });
+      Object.keys(doors).forEach(function (i) { var d = VA.plan.doors[i]; if (d) s('circle', { cx: d.x, cy: -d.y, r: 2.2, fill: 'none', stroke: '#8d8d94', 'stroke-width': 0.5 }, over); });
+      // the door search it made on leaving S1 (1st visit only: with memory or the plan it never searches)
+      var dec = (r.decisions || []).filter(function (dc) { return dc.t >= t0 - 1 && dc.cands.length; })[0];
+      if (dec && typeof dec.goal === 'number') {
+        var gs = dec.cands.filter(function (c) { return c[0] === dec.goal; })[0][3];
+        dec.cands.forEach(function (c) {
+          var d = VA.plan.doors[c[0]], chosen = c[0] === dec.goal, dropped = c[3] > gs + 0.3;   // ranked above the chosen one even with the noise
+          s('line', { x1: dec.at[0], y1: -dec.at[1], x2: d.x, y2: -d.y, stroke: chosen ? col : '#8d8d94', 'stroke-width': chosen ? 0.6 : 0.35, 'stroke-dasharray': '1.2 1' }, over);
+          s('circle', { cx: d.x, cy: -d.y, r: 2.6, fill: chosen ? col : 'none', stroke: chosen ? col : '#ececee', 'stroke-width': 0.6 }, over);
+          txt(over, d.x + 3.4, d.y + (c[1] === '103' ? 3 : -1.5), 's ' + c[3].toFixed(2) + (dropped ? ' ×' : chosen ? ' →' : ''), 4.6, chosen ? col : '#ececee');
+        });
+      }
+      // the way it went from S1 to S2
+      s('polyline', { points: tr.slice(leg.a, leg.b + 1).map(function (q) { return q[1] + ',' + (-q[2]); }).join(' '), fill: 'none', stroke: col, 'stroke-width': 0.9, 'stroke-linejoin': 'round', 'stroke-dasharray': r.key === 'C_staff' ? '1.6 1.4' : 'none' }, over);
+      VA.stops.forEach(function (sp, i) {
+        s('circle', { cx: sp.c[0], cy: -sp.c[1], r: 2.2, fill: 'none', stroke: '#ececee', 'stroke-width': 0.5 }, over);
+        txt(over, sp.c[0] + 3, sp.c[1] + 2.5, 'S' + (i + 1), 4.2, '#ececee');
+      });
+      s('circle', { cx: tr[leg.a][1], cy: -tr[leg.a][2], r: 1.7, fill: col, stroke: '#000', 'stroke-width': 0.4 }, over);
+      if (r.key === 'C_staff') txt(over, 0, -58, 'knows the whole plan', 4.4, '#ececee', 'middle');
+      // readings
+      var b = VA.brains[st.profile];
+      cells['Prior map'].textContent = b['Pawn Prior Map Knowledge'] ? 'yes' : 'no';
+      cells['Curiosity'].textContent = b['Pawn Curiosity'];
+      cells['Patience'].textContent = b['Pawn Patience'] + ' s';
+      cells['Pre-movement'].textContent = b['Pawn Pre-Movement'] + ' s';
+      legEl.textContent = 'S1 Office 02 → S2 Restroom · ' + Math.round(leg.t1 - leg.t0) + ' s · ' + Math.round(leg.d) + ' ft';
+      cap.textContent = CAPS[r.key];
+      profBtns.forEach(function (bt) { bt.setAttribute('aria-pressed', String(bt.textContent === st.profile)); });
+      memBtns.forEach(function (bt) { bt.setAttribute('aria-pressed', String(bt.textContent === st.memory)); bt.disabled = st.profile === 'Staff'; });
+    }
+    listeners.push(drawSide);
+    draw();
+  })();
+
+  // ---------- 04 memory: three runs of the same person, replayed with its memory ----------
   (function replay() {
     var root = document.getElementById('replay'), svg = root.querySelector('svg');
     var playBtn = document.getElementById('rp-play'), range = document.getElementById('rp-t'), clock = document.getElementById('rp-clock');
