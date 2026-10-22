@@ -22,5 +22,5 @@ http://localhost:8000.
 
 ## Credits
 
-Torre Agbar: Ateliers Jean Nouvel, Barcelona, 2005. AI images: Gemini. AI use and references are listed at
-the end of the page. LED source images are from Pinterest (links on the page).
+Torre Agbar: Ateliers Jean Nouvel, Barcelona, 2005. AI use and references are listed at the end of
+the page. LED source images are from Pinterest (links on the page).
