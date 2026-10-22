@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Parametric VA · Torre Agbar</title>
+<meta name="description" content="A parametric human walks a parametric tower: body, brain and memory as Revit families inside a parametric Torre Agbar. ARCH 653 Project 1, Farshad Askari, Texas A&M University.">
+<meta name="author" content="Farshad Askari">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Parametric VA · Torre Agbar">
+<meta property="og:description" content="A parametric human walks a parametric tower. Body, brain and memory are Revit families, like the 1,260 panels of the façade.">
+<meta property="og:url" content="https://faroshad.github.io/VA_Parametric/">
+<meta property="og:image" content="https://faroshad.github.io/VA_Parametric/assets/img/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cpath d='M10 28V13a6 6 0 0 1 12 0v15z' fill='none' stroke='%23ececee' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&family=Michroma&display=swap">
+<style>
+/* Layout: a black ground with the WebGL body/tower fixed in the centre; each section floats its text on the left
+   and its images on the right with no panels behind them, so nothing masks the figure. */
+:root {
+  --black: #000000;
+  --night: #0b0b0d;
+  --ink: #ececee;
+  --ink-soft: #8d8d94;
+  --hair: rgba(236, 236, 238, .22);
+  --shade: 0 0 10px rgba(0, 0, 0, .9);
+  --f-title: "Michroma", "Eurostile", "Arial Black", Arial, sans-serif;
+  --f-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--black); }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0;
+  color: var(--ink); font-family: var(--f-body); font-size: 1rem; line-height: 1.6; font-weight: 400;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+img { max-width: 100%; }
+.bg { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 45% 55% at 50% 45%, rgba(255,255,255,.045), rgba(255,255,255,0) 70%), var(--black);
+}
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
+#app { position: relative; z-index: 1; text-shadow: var(--shade); }
+p { margin: 0; }
+h1, h2 { margin: 0; font-weight: 400; text-wrap: balance; }
+a { color: inherit; text-underline-offset: 3px; }
+.mono { font-family: var(--f-mono); font-weight: 300; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; }
+
+/* hero */
+.hero { max-width: 1440px; margin: 0 auto; min-height: 94svh; display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr) minmax(0, 260px); align-items: center; gap: 2rem; padding-block: 6svh; }
+.hero-l { display: grid; gap: .9rem; align-content: center; }
+.hero-l h1 { font-family: var(--f-title); font-size: clamp(1.7rem, 3.3vw, 2.7rem); line-height: 1.12; letter-spacing: .04em; text-transform: uppercase; }
+.hero-l .sub { font-size: 1.02rem; color: var(--ink-soft); max-width: 34ch; font-weight: 300; }
+.hero-l .who { display: grid; gap: .25rem; color: var(--ink-soft); }
+.hero-l .who .name { color: var(--ink); }
+.hero-r { grid-column: 3; display: grid; gap: .3rem; justify-items: end; text-align: right; color: var(--ink-soft); }
+.hero-r .big { color: var(--ink); }
+.rule { width: 2.2rem; height: 1px; background: currentColor; opacity: .6; margin: .5rem 0; }
+
+/* sections */
+.sec { max-width: 1440px; margin: 0 auto; min-height: 96svh; display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr) minmax(0, 440px); gap: 2rem; align-items: center; padding-block: 9svh; }
+.sec-text { grid-column: 1; display: grid; gap: .8rem; align-content: start; min-width: 0; }
+.sec-media { grid-column: 3; display: grid; gap: .9rem; align-content: start; min-width: 0; }
+.idx, .file { color: var(--ink-soft); }
+.sec h2 { font-family: var(--f-title); font-size: 1rem; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; }
+.txt { display: grid; gap: .8rem; font-weight: 300; font-size: 1rem; overflow-wrap: anywhere; }
+.txt ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .6rem; }
+.txt.refs { font-size: .86rem; line-height: 1.5; }
+.txt.refs ul { gap: .45rem; }
+
+/* parameters and equations: the parametric part of each section */
+.eq { display: grid; gap: .35rem; margin: .2rem 0 0; padding: .15rem 0 .15rem .85rem; border-left: 1px solid var(--hair); font-family: var(--f-mono); font-weight: 300; font-size: .74rem; line-height: 1.55; overflow-wrap: anywhere; }
+.eq .k { color: var(--ink-soft); }
+
+.slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.slots.one { grid-template-columns: minmax(0, 1fr); }
+.slots.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.slot { margin: 0; display: grid; gap: .45rem; min-width: 0; align-content: start; }
+.slot .zoom { display: block; width: 100%; padding: 0; border: 1px solid var(--hair); background: transparent; cursor: zoom-in; }
+.slot .zoom img { display: block; width: 100%; height: auto; }
+.slot video { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid var(--hair); background: #000; }
+.slot figcaption { font-size: .84rem; font-weight: 300; line-height: 1.45; display: grid; gap: .15rem; }
+.slot figcaption .mono { color: var(--ink-soft); }
+
+/* the family tree, drawn as text in a framed plate */
+.plate { margin: 0; position: relative; border: 1px solid var(--hair); padding: 1rem 1.1rem; display: grid; gap: .9rem; min-width: 0; }
+.plate::before, .plate::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--ink-soft); opacity: .7; top: -1px; }
+.plate::before { left: -1px; border-right: 0; border-bottom: 0; }
+.plate::after { right: -1px; border-left: 0; border-bottom: 0; }
+.plate pre { margin: 0; font: 300 .72rem/1.7 var(--f-mono); white-space: pre; overflow-x: auto; }
+.plate pre .k { color: var(--ink-soft); }
+.plate figcaption { font-size: .84rem; font-weight: 300; color: var(--ink-soft); }
+
+.foot { max-width: 1440px; margin: 0 auto; padding-block: 3rem calc(5rem + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem 2rem; color: var(--ink-soft); }
+.foot span:first-child { color: var(--ink); }
+
+.readout { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 2; pointer-events: none; color: var(--ink-soft); white-space: nowrap; font-size: .62rem; text-shadow: var(--shade); }
+
+.btn { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; padding: .32rem .55rem; border: 1px solid var(--hair); background: transparent; color: var(--ink); cursor: pointer; border-radius: 0; }
+.btn:hover { border-color: var(--ink); }
+.btn:focus-visible, .zoom:focus-visible, a:focus-visible, video:focus-visible { outline: 2px solid #6f8cff; outline-offset: 2px; }
+
+/* lightbox */
+dialog#lb { width: min(96vw, 1700px); max-width: none; height: min(92vh, 1200px); max-height: none; padding: 0; border: 1px solid var(--hair); background: var(--night); color: var(--ink); }
+dialog#lb::backdrop { background: rgba(8, 8, 10, .82); }
+.lb-inner { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
+.lb-bar { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; padding: .55rem .8rem; border-bottom: 1px solid var(--hair); }
+.lb-bar .cap { flex: 1 1 240px; font-size: .85rem; font-weight: 300; min-width: 0; }
+.lb-bar .mono { color: var(--ink-soft); }
+.lb-scroll { overflow: auto; }
+.lb-scroll img { display: block; max-width: none; margin: 0 auto; }
+.lb-scroll.fit { display: grid; place-items: center; }
+.lb-scroll.fit img { max-width: 100%; max-height: 100%; }
+
+/* narrow screens: one column, the figure showing between sections */
+@media (max-width: 960px) {
+  .hero { grid-template-columns: minmax(0, 1fr); min-height: 88svh; align-content: space-between; padding-block: 9svh 12svh; }
+  .hero-r { grid-column: 1; justify-items: start; text-align: left; }
+  .sec { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 0; margin-bottom: 62svh; gap: 1.4rem; }
+  .sec-text, .sec-media { grid-column: 1; }
+  .sec-media:empty { display: none; }
+}
+@media (max-width: 480px) {
+  .slots { grid-template-columns: minmax(0, 1fr); }
+  .slots.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+  .readout { white-space: normal; width: calc(100vw - 32px); text-align: center; line-height: 1.6; }
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<main id="app">
+  <header class="hero">
+    <div class="hero-l">
+      <p class="mono">ARCH 653 · Project 1 · Torre Agbar</p>
+      <h1>The Parametric VA</h1>
+      <p class="sub">A parametric human walks a parametric tower. Body, brain and memory are Revit families, like the 1,260 panels of the façade.</p>
+      <div class="who">
+        <p class="mono name">Farshad Askari</p>
+        <p class="mono">Texas A&amp;M University · Fall 2026</p>
+      </div>
+    </div>
+    <div class="hero-r">
+      <p class="mono big">Human → façade</p>
+      <span class="rule" aria-hidden="true"></span>
+      <p class="mono">Body · brain · memory</p>
+      <p class="mono">36 × 35 = 1,260 panels</p>
+      <span class="rule" aria-hidden="true"></span>
+      <p class="mono">Scroll ↓</p>
+    </div>
+  </header>
+
+  <section class="sec" id="description" aria-labelledby="h-description">
+    <div class="sec-text">
+      <p class="mono idx">01 / 15</p>
+      <h2 id="h-description">Description</h2>
+      <div class="txt">
+        <p>Two parametric systems share one Revit model. The tower is Torre Agbar (Ateliers Jean Nouvel, Barcelona, 2005): three parameters shape it and 1,260 façade panels respond.</p>
+        <p>The people are families too, with a body, a brain and a memory, and a physics engine walks them through the tower's office floor.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image3.jpg" data-cap="Project1_AI_image3 · The office floor with a person in it (Gemini)"><img src="assets/img/sm/Project1_AI_image3.jpg" alt="A curved office corridor inside the tower with a person standing in it" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image3</span><span>The office floor with a person in it (Gemini).</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="body" aria-labelledby="h-body">
+    <div class="sec-text">
+      <p class="mono idx">02 / 15 · Human</p>
+      <h2 id="h-body">Parametric body</h2>
+      <p class="mono file">VA Body.rfa</p>
+      <div class="txt">
+        <p>The type is a body group taken from measured people. The instance is one person, with a name, a pose and a mobility. Formulas turn these into what the simulation needs.</p>
+      </div>
+      <div class="eq">
+        <p><span class="k">Type</span> Adult Male P50 · 5.75 ft · 1.6 ft shoulders · 199.8 lb</p>
+        <p><span class="k">Eye height</span> = if(seated, seat + 0.45 · stature, 0.936 · stature)</p>
+        <p><span class="k">Clear width</span> = shoulders + 0.25 ft sway; cane +0.5 ft; walker 2.5 ft; wheelchair 32 in</p>
+        <p><span class="k">Speed</span> 4.40 ft/s walking; 1.87 ft/s with a walker</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/VA_Body_Farshad.jpg" data-cap="Farshad · Body type, his instance, brain profile and memory"><img src="assets/img/sm/VA_Body_Farshad.jpg" alt="Diagram of the agent Farshad: body family, type and instance, brain family, profile and memory" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Farshad</span><span>Body type, his instance, brain profile and memory.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="brain" aria-labelledby="h-brain">
+    <div class="sec-text">
+      <p class="mono idx">03 / 15 · Human</p>
+      <h2 id="h-brain">Parametric brain</h2>
+      <p class="mono file">VA Brain.rfa</p>
+      <div class="txt">
+        <p>A brain type is a profile. A Visitor plans only through rooms it has been in and searches door by door; Staff know the plan.</p>
+        <p>Memory belongs to the person: a folder that follows the name into every building, so the same person learns a floor.</p>
+      </div>
+      <div class="eq">
+        <p><span class="k">Visitor</span> curiosity 0.6 · patience 600 s · pre-movement 30 s</p>
+        <p><span class="k">Sight</span> a door is known once a line from the eyes reaches it; furniture blocks only if taller than the eyes</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/VA_Farshad_and_X.jpg" data-cap="Farshad and X · Same body, same brain, different memory"><img src="assets/img/sm/VA_Farshad_and_X.jpg" alt="Farshad and X share a body type and brain profile; their memory maps of the floor differ" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Farshad and X</span><span>Same body, same brain, different memory.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="simulation" aria-labelledby="h-simulation">
+    <div class="sec-text">
+      <p class="mono idx">04 / 15 · Human</p>
+      <h2 id="h-simulation">Simulation</h2>
+      <p class="mono file">Pawn engine</p>
+      <div class="txt">
+        <p>Each person is a disc as wide as its clear width, with its mass and speed, moved by the social force model every 0.02 s. Routes are A* on a 0.5 ft grid sized to that body, so a door narrower than the body stays closed.</p>
+        <p>Results return to Revit as parameters, a schedule and a map.</p>
+      </div>
+      <div class="eq">
+        <p>m · dv/dt = m (v₀e − v) / τ + Σ f<sub>ij</sub> + Σ f<sub>iW</sub></p>
+        <p><span class="k">Constants</span> τ = 0.5 s · A = 2000 N · B = 0.08 m</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_pipeline.jpg" data-cap="Pawn engine · From the Engine window to results in Revit"><img src="assets/img/sm/Pawn_pipeline.jpg" alt="Pipeline: command in Revit, building snapshot, simulation, result files, replay in the model" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Pawn engine</span><span>From the Engine window to results in Revit.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="run" aria-labelledby="h-run">
+    <div class="sec-text">
+      <p class="mono idx">05 / 15 · Human</p>
+      <h2 id="h-run">Two visitors</h2>
+      <p class="mono file">Visit · 21 Oct 2026</p>
+      <div class="txt">
+        <p>Farshad and X, both Visitors using walking frames, enter the office floor with six stops to find. Each reached three. Stops outside any room were given up after 600 s and marked as warning points.</p>
+      </div>
+      <div class="eq">
+        <p><span class="k">Farshad</span> 586 ft · 36.7 min · detour 1.78</p>
+        <p><span class="k">X</span> 867 ft · 39.7 min · detour 2.84</p>
+        <p><span class="k">Detour</span> = walked / shortest route for that body</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Pawn_map_Visit.png" data-cap="Pawn map · Tracks, stops (S), warning points (W), seconds spent per 1 ft square"><img src="assets/img/sm/Pawn_map_Visit.jpg" alt="Plan of the circular office floor with two agents' tracks, stops, warning points and a heat map of time spent" width="880" height="670" loading="lazy"></button><figcaption><span class="mono">Pawn map</span><span>Drawn in Revit: tracks, stops (S), warning points (W), seconds spent per 1 ft square.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="eyes" aria-labelledby="h-eyes">
+    <div class="sec-text">
+      <p class="mono idx">06 / 15 · Human</p>
+      <h2 id="h-eyes">What he saw</h2>
+      <p class="mono file">Farshad_ego.mp4</p>
+      <div class="txt">
+        <p>Farshad's view along his simulated track, at his eye height of 5.38 ft, with a 60° field of view.</p>
+        <p>This is a render of the walk (Revit's export, rendered in Blender Cycles): a visualisation. In the simulation he sees only by sight lines.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="slot">
+        <video src="assets/video/Farshad_ego.mp4" poster="assets/video/Farshad_ego_poster.jpg" controls preload="metadata" playsinline width="1280" height="720" aria-label="First-person video of Farshad's walk"></video>
+        <figcaption><span class="mono">Farshad_ego</span><span>The first 122 s of the walk.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="mass" aria-labelledby="h-mass" data-build-start>
+    <div class="sec-text">
+      <p class="mono idx">07 / 15 · Tower</p>
+      <h2 id="h-mass">Parametric mass</h2>
+      <p class="mono file">Project1_mass.rfa</p>
+      <div class="txt">
+        <p>Three instance parameters shape the tower: a cylinder of radius R up to z0, then an elliptical dome closing at H. Floors, panels and louvres follow.</p>
+      </div>
+      <div class="eq">
+        <p>z<sub>i</sub> = z0 + t<sub>i</sub> (H − z0)</p>
+        <p>r<sub>i</sub> = R √(1 − t<sub>i</sub>²), t = 0.2, 0.4, 0.6, 0.8, 0.95, 0.99</p>
+        <p><span class="k">Values</span> R 61′-3½″ · H 465′-10½″ · z0 250′-11¾″</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot3.jpg" data-cap="Screenshot3 · z0 = 120′-11¾″: the taper starts low"><img src="assets/img/sm/Screenshot3.jpg" alt="Family Types dialog with z0 = 120 ft 11¾ in and the tower tapering low" width="880" height="539" loading="lazy"></button><figcaption><span class="mono">Screenshot3</span><span>z0 = 120′-11¾″: the taper starts low.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot4.jpg" data-cap="Screenshot4 · z0 = 260′-11¾″: the taper starts high"><img src="assets/img/sm/Screenshot4.jpg" alt="Family Types dialog with z0 = 260 ft 11¾ in and the tower tapering high" width="880" height="556" loading="lazy"></button><figcaption><span class="mono">Screenshot4</span><span>z0 = 260′-11¾″: the taper starts high.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="envelope" aria-labelledby="h-envelope">
+    <div class="sec-text">
+      <p class="mono idx">08 / 15 · Tower</p>
+      <h2 id="h-envelope">Responsive envelope</h2>
+      <p class="mono file">Project1_envelope.rfa</p>
+      <div class="txt">
+        <p>A four-point curtain panel sits on each of the 1,260 cells (36 columns × 35 rows). Each reads its own width W: the louvres tilt with it, and panels narrower than W_dome turn to glass, which makes the dome.</p>
+      </div>
+      <div class="eq">
+        <p>Tilt = TiltMin + (TiltMax − TiltMin) · (W − Wmin) / (Wmax − Wmin)</p>
+        <p>Glazed = W &lt; W_dome</p>
+        <p>Rows = rounddown(Height / Pitch)</p>
+        <p><span class="k">Values</span> TiltMin 20° · TiltMax 76° · W_dome 9′-2¼″</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot1.jpg" data-cap="Screenshot1 · TiltMax = 30°: louvres more closed"><img src="assets/img/sm/Screenshot1.jpg" alt="Type Properties with TiltMax = 30 degrees and the louvres more closed" width="880" height="683" loading="lazy"></button><figcaption><span class="mono">Screenshot1</span><span>TiltMax = 30°: louvres more closed.</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Screenshot2.jpg" data-cap="Screenshot2 · TiltMax = 80°: louvres open"><img src="assets/img/sm/Screenshot2.jpg" alt="Type Properties with TiltMax = 80 degrees and the louvres open" width="880" height="718" loading="lazy"></button><figcaption><span class="mono">Screenshot2</span><span>TiltMax = 80°: louvres open.</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="diagram" aria-labelledby="h-diagram">
+    <div class="sec-text">
+      <p class="mono idx">09 / 15 · Tower</p>
+      <h2 id="h-diagram">Parametric diagram</h2>
+      <p class="mono file">Parametric Modeling Diagram</p>
+      <div class="txt">
+        <p>Parameters pass down five nested families. The human chain works the same way: inputs, formulas, then a result the model can read.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <figure class="plate">
+<pre>Project1.rvt  <span class="k">levels 00–31 + TA/TB/TC</span>
+└─ Project1_mass.rfa
+   <span class="k">R, H, z0</span>
+   └─ divided surface  <span class="k">36 × 35 = 1,260</span>
+      ├─ Project1_envelope.rfa
+      │  <span class="k">W, Hp → Tilt, Glazed, LED_Material</span>
+      │  └─ P1_LouvreSet.rfa
+      │     <span class="k">Width, Height, Pitch → Rows</span>
+      │     └─ P1_Blade.rfa
+      │        <span class="k">Tilt, Length, Cavity</span>
+      └─ Project1_envelope_ground.rfa
+         <span class="k">ground row, same parameters</span></pre>
+<pre><span class="k">tower</span>  R · z0 · H → form → W
+       → Tilt · Glazed → louvres, dome
+<span class="k">human</span>  Name · Pose · Mobility
+       → eye height · clear width · speed
+       → walk</pre>
+        <figcaption>Family structure and the two parameter flows.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="led" aria-labelledby="h-led">
+    <div class="sec-text">
+      <p class="mono idx">10 / 15 · Tower</p>
+      <h2 id="h-led">LED façade</h2>
+      <p class="mono file">LED_Material</p>
+      <div class="txt">
+        <p>LED_Material is an instance parameter on every panel. Three images were reduced to six colours each and mapped to the panels: three façades from one family.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots three">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image1_Blobs.png" data-cap="Image1 · Blobs, seen from south and north"><img src="assets/img/sm/Image1_Blobs.jpg" alt="Blobs image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image1</span><span>Blobs</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image2_Tulips.png" data-cap="Image2 · Tulips, seen from south and north"><img src="assets/img/sm/Image2_Tulips.jpg" alt="Tulips image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image2</span><span>Tulips</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Image3_Cloud.png" data-cap="Image3 · Cloud, seen from south and north"><img src="assets/img/sm/Image3_Cloud.jpg" alt="Cloud image mapped onto the façade panels, south and north" width="761" height="880" loading="lazy"></button><figcaption><span class="mono">Image3</span><span>Cloud</span></figcaption></figure>
+      </div>
+      <div class="slots one">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image1.jpg" data-cap="Project1_AI_image1 · The Blobs façade in Barcelona (Gemini)"><img src="assets/img/sm/Project1_AI_image1.jpg" alt="The tower with the Blobs façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image1</span><span>The Blobs façade in Barcelona (Gemini).</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="bim" aria-labelledby="h-bim">
+    <div class="sec-text">
+      <p class="mono idx">11 / 15 · Tower</p>
+      <h2 id="h-bim">BIM model</h2>
+      <p class="mono file">Project1.rvt</p>
+      <div class="txt">
+        <p>35 levels follow the mass floors, and the slabs are Floor by Face. Floors 12, 13 and 24 have offices, furniture and rooms.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering1.jpg" data-cap="Rendering1"><img src="assets/img/sm/Rendering1.jpg" alt="Render of the tower at dusk" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Rendering1</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering2.jpg" data-cap="Rendering2"><img src="assets/img/sm/Rendering2.jpg" alt="Render of the curved office floor" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Rendering2</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Raw_Renders_Image1.jpg" data-cap="Raw render · The tower among trees"><img src="assets/img/sm/Raw_Renders_Image1.jpg" alt="Raw render of the tower seen between trees" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Raw render</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Raw_Renders_Image4.jpg" data-cap="Raw render · Louvres on the façade"><img src="assets/img/sm/Raw_Renders_Image4.jpg" alt="Close raw render of the louvres on the façade" width="880" height="495" loading="lazy"></button><figcaption><span class="mono">Raw render</span><span>Louvres</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="ai" aria-labelledby="h-ai">
+    <div class="sec-text">
+      <p class="mono idx">12 / 15 · Tower</p>
+      <h2 id="h-ai">AI images</h2>
+      <p class="mono file">Gemini</p>
+      <div class="txt">
+        <p>Gemini restyled the renders and placed the tower in Barcelona.</p>
+      </div>
+    </div>
+    <div class="sec-media">
+      <div class="slots">
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering1_AI.jpg" data-cap="Rendering1_AI · Gemini"><img src="assets/img/sm/Rendering1_AI.jpg" alt="AI version of the tower with the Cloud façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Rendering1_AI</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Rendering2_AI.jpg" data-cap="Rendering2_AI · Gemini"><img src="assets/img/sm/Rendering2_AI.jpg" alt="AI version of the office floor render" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Rendering2_AI</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image2.jpg" data-cap="Project1_AI_image2 · The Tulips façade (Gemini)"><img src="assets/img/sm/Project1_AI_image2.jpg" alt="The tower with the Tulips façade over Barcelona" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image2</span></figcaption></figure>
+        <figure class="slot"><button class="zoom" type="button" data-src="assets/img/Project1_AI_image4.jpg" data-cap="Project1_AI_image4 · The office floor (Gemini)"><img src="assets/img/sm/Project1_AI_image4.jpg" alt="AI image of the curved office corridor with glass offices" width="880" height="491" loading="lazy"></button><figcaption><span class="mono">Project1_AI_image4</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="critique" aria-labelledby="h-critique" data-build-end>
+    <div class="sec-text">
+      <p class="mono idx">13 / 15</p>
+      <h2 id="h-critique">Revit critique</h2>
+      <div class="txt">
+        <ul>
+          <li>Revit knows doors and rooms, not people. A body, its sight and its memory had to become parameters plus an outside engine.</li>
+          <li>Parameters pass well through nested families, but slabs wait for Update to Face after the mass changes.</li>
+          <li>Curtain-wall doors have no location point, and the API's FBX export drops materials. Both needed workarounds.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sec-media"></div>
+  </section>
+
+  <section class="sec" id="aiuse" aria-labelledby="h-aiuse">
+    <div class="sec-text">
+      <p class="mono idx">14 / 15</p>
+      <h2 id="h-aiuse">AI use</h2>
+      <div class="txt">
+        <p>Gemini: Project1_AI_image1–4, Rendering1_AI, Rendering2_AI and the AI thumbnail.</p>
+        <p>Claude: learning guidance and troubleshooting; finding CAD files and drawings and deriving sizes from them; developing the equations; checking my saved files; mapping Images 1–3 to LED panel IDs; writing the Pawn add-in, engine and video code with me; this web page.</p>
+        <p>4x-UltraSharp: upscaling the first-person video.</p>
+      </div>
+    </div>
+    <div class="sec-media"></div>
+  </section>
+
+  <section class="sec" id="refs" aria-labelledby="h-refs">
+    <div class="sec-text">
+      <p class="mono idx">15 / 15</p>
+      <h2 id="h-refs">References</h2>
+      <div class="txt refs">
+        <ul>
+          <li>Ateliers Jean Nouvel. Torre Agbar, Barcelona, 2005.</li>
+          <li>Helbing, D., Farkas, I., &amp; Vicsek, T. (2000). Simulating dynamical features of escape panic. <i>Nature, 407</i>, 487–490.</li>
+          <li>Weidmann, U. (1993). <i>Transporttechnik der Fussgänger</i>. ETH Zürich.</li>
+          <li>Pheasant, S., &amp; Haslegrave, C. M. (2006). <i>Bodyspace</i> (3rd ed.). CRC Press.</li>
+          <li>CDC. National Health and Nutrition Examination Survey (NHANES), anthropometric reference data.</li>
+          <li>Boyce, K. E., Shields, T. J., &amp; Silcock, G. W. H. (1999). Toward the characterization of building occupancies for fire safety engineering. <i>Fire Technology, 35</i>(1).</li>
+          <li>Sime, J. D. (1985). Movement toward the familiar. <i>Environment and Behavior, 17</i>(6), 697–724.</li>
+          <li>U.S. Department of Justice (2010). ADA Standards for Accessible Design, 404.2.3.</li>
+          <li>LED source images (Pinterest): <a href="https://www.pinterest.com/pin/1075727061021989938/" target="_blank" rel="noopener">Image 1</a>, <a href="https://www.pinterest.com/pin/914160424368386745/" target="_blank" rel="noopener">Image 2</a>, <a href="https://www.pinterest.com/pin/1040190845209228923/" target="_blank" rel="noopener">Image 3</a>.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sec-media"></div>
+  </section>
+
+  <footer class="foot">
+    <span class="mono">Farshad Askari · ARCH 653 Project 1</span>
+    <span class="mono">Texas A&amp;M University · Fall 2026</span>
+    <a class="mono" href="https://github.com/Faroshad/VA_Parametric" target="_blank" rel="noopener">Source on GitHub ↗</a>
+  </footer>
+</main>
+
+<p class="mono readout" id="readout" aria-hidden="true">Human · stature 5.75 ft · eye height 5.38 ft</p>
+
+<dialog id="lb" aria-label="Image at full size">
+  <div class="lb-inner">
+    <div class="lb-bar">
+      <span class="cap" id="lb-cap"></span>
+      <span class="mono" id="lb-size"></span>
+      <button class="btn" type="button" id="lb-fit">Fit to screen</button>
+      <button class="btn" type="button" id="lb-close">Close</button>
+    </div>
+    <div class="lb-scroll" id="lb-scroll"><img id="lb-img" alt=""></div>
+  </div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ---------- lightbox: images open at full size ----------
+  var dlg = document.getElementById('lb'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
+  var lbSize = document.getElementById('lb-size'), lbScroll = document.getElementById('lb-scroll'), lbFit = document.getElementById('lb-fit');
+  function setFit(on) { lbScroll.classList.toggle('fit', on); lbFit.textContent = on ? 'Original size' : 'Fit to screen'; }
+  function closeLb() { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  lbFit.addEventListener('click', function () { setFit(!lbScroll.classList.contains('fit')); });
+  document.getElementById('lb-close').addEventListener('click', closeLb);
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) closeLb(); });
+  document.querySelectorAll('#app .zoom').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var cap = b.getAttribute('data-cap') || '';
+      lbImg.src = b.getAttribute('data-src'); lbImg.alt = cap; lbCap.textContent = cap; lbSize.textContent = '';
+      setFit(window.innerWidth < 960);
+      lbImg.onload = function () { lbSize.textContent = lbImg.naturalWidth + ' × ' + lbImg.naturalHeight + ' px'; };
+      if (dlg.showModal) { try { dlg.showModal(); } catch (e) { dlg.setAttribute('open', ''); } } else dlg.setAttribute('open', '');
+    });
+  });
+
+  // ---------- the scene: a body of particles and contour lines that stays a body through the human
+  //            sections and becomes Torre Agbar through the tower sections ----------
+  var readout = document.getElementById('readout');
+  var HUMAN_READOUT = 'Human · stature 5.75 ft · eye height 5.38 ft';
+  var S = 36, F = 35, PANELS = S * F; // 36 columns x 35 rows = 1,260 panels
+  (function scene() {
+    var canvas = document.getElementById('scene');
+    if (!window.THREE || !canvas) return;
+    var renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); } catch (e) { return; }
+    if (!renderer.getContext()) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+    var scene3 = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(30, 1, 0.1, 400);
+    var group = new THREE.Group();
+    scene3.add(group);
+    var U = { uP: { value: 0 }, uTime: { value: 0 }, uPx: { value: renderer.getPixelRatio() } };
+
+    // shared GLSL: human silhouette (half-width / stature, feet to crown) and the tower profile s(z)
+    var COMMON = [
+      'uniform float uP; uniform float uTime; uniform float uPx;',
+      'const float HT = 10.0;',
+      'const float TR = 1.3156;', // R / H * HT  (18.68 m / 142 m)
+      'float seg(float v, float a, float b, float ra, float rb){ float t = clamp((v-a)/(b-a), 0.0, 1.0); t = t*t*(3.0-2.0*t); return mix(ra, rb, t); }',
+      'float humanR(float v){',
+      '  if (v < 0.04) return seg(v, 0.00, 0.04, 0.050, 0.036);',
+      '  if (v < 0.17) return seg(v, 0.04, 0.17, 0.036, 0.062);',
+      '  if (v < 0.28) return seg(v, 0.17, 0.28, 0.062, 0.050);',
+      '  if (v < 0.46) return seg(v, 0.28, 0.46, 0.050, 0.092);',
+      '  if (v < 0.53) return seg(v, 0.46, 0.53, 0.092, 0.106);',
+      '  if (v < 0.62) return seg(v, 0.53, 0.62, 0.106, 0.082);',
+      '  if (v < 0.72) return seg(v, 0.62, 0.72, 0.082, 0.102);',
+      '  if (v < 0.81) return seg(v, 0.72, 0.81, 0.102, 0.128);',
+      '  if (v < 0.865) return seg(v, 0.81, 0.865, 0.128, 0.034);',
+      '  if (v < 0.935) return seg(v, 0.865, 0.935, 0.034, 0.064);',
+      '  return seg(v, 0.935, 1.0, 0.064, 0.004);',
+      '}',
+      'float towerR(float v){ float z0 = 0.5387; if (v <= z0) return 1.0; float t = (v - z0) / (1.0 - z0); return sqrt(max(1.0 - t*t, 0.0004)); }',
+      'float buildK(float v){ return smoothstep(0.0, 1.0, (uP * 1.35 - v - 0.05) / 0.3); }',
+      'vec3 humanPos(float th, float v, float rf){',
+      '  float w = sin(th*3.0 + v*19.0 + uTime*0.55)*0.16 + sin(th*7.0 - v*33.0 + uTime*0.8)*0.06 + sin(th*1.0 + v*6.0 - uTime*0.3)*0.12;',
+      '  float r = humanR(v) * HT * rf + w * rf;',
+      '  float vy = v + sin(th*2.0 + v*13.0 + uTime*0.45)*0.011;',
+      '  return vec3(cos(th)*r, (vy - 0.5)*HT, sin(th)*r*0.62);',
+      '}',
+      'vec3 towerPos(float th, float v, float off){',
+      '  float r = towerR(v) * TR + off;',
+      '  return vec3(cos(th)*r, (v - 0.5)*HT, sin(th)*r*0.9);',
+      '}'
+    ].join('\n');
+
+    // particles: 36 columns x 35 rows x 12 points = one small lattice per façade panel
+    var A = [0.14, 0.38, 0.62, 0.86], B = [0.22, 0.5, 0.78];
+    var N = S * F * A.length * B.length;
+    var aT = new Float32Array(N * 4), aR = new Float32Array(N * 3), pos = new Float32Array(N * 3);
+    var seed = 653;
+    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    var n = 0;
+    for (var f = 0; f < F; f++) for (var s = 0; s < S; s++) for (var a = 0; a < A.length; a++) for (var b = 0; b < B.length; b++) {
+      var th = (s + A[a]) / S * Math.PI * 2, v = (f + B[b]) / F;
+      aT[n * 4] = th; aT[n * 4 + 1] = v;
+      aT[n * 4 + 2] = th + (rnd() - 0.5) * 0.5; aT[n * 4 + 3] = Math.min(0.999, Math.max(0.001, v + (rnd() - 0.5) * 0.04));
+      var inner = rnd() < 0.45;
+      aR[n * 3] = inner ? 0.15 + rnd() * 0.75 : 0.9 + rnd() * 0.14;
+      aR[n * 3 + 1] = 0.7 + Math.pow(rnd(), 4) * 3.6;
+      aR[n * 3 + 2] = rnd();
+      n++;
+    }
+    var pg = new THREE.BufferGeometry();
+    pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    pg.setAttribute('aT', new THREE.BufferAttribute(aT, 4));
+    pg.setAttribute('aR', new THREE.BufferAttribute(aR, 3));
+    var pm = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, depthTest: false,
+      vertexShader: COMMON + '\n' + [
+        'attribute vec4 aT; attribute vec3 aR; varying float vA; varying vec3 vC;',
+        'void main(){',
+        '  float k = buildK(aT.y);',
+        '  float swirl = k*(1.0-k)*4.0*(aR.z-0.5);',
+        '  vec3 ph = humanPos(aT.z + swirl, aT.w, aR.x);',
+        '  vec3 pt = towerPos(aT.x + swirl*0.4, aT.y, 0.07);',
+        '  vec3 p = mix(ph, pt, k);',
+        '  p.y += sin(k*3.14159)*0.6*aR.z;',
+        '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
+        '  gl_Position = projectionMatrix * mv;',
+        '  gl_PointSize = mix(aR.y, 1.35, k) * uPx * (24.0 / -mv.z);',
+        '  float ir = aT.x + aT.y*6.0;',
+        '  vC = vec3(0.72) + 0.28*(1.0-0.5*k)*vec3(0.5+0.5*sin(ir), 0.5+0.5*sin(ir+2.1), 0.5+0.5*sin(ir+4.2));',
+        '  vA = mix(0.6 * step(0.38, fract(aR.z * 7.31)), 0.75, k);',
+        '}'].join('\n'),
+      fragmentShader: [
+        'varying float vA; varying vec3 vC;',
+        'void main(){ vec2 d = gl_PointCoord - 0.5; float r = length(d); if (r > 0.5) discard;',
+        '  gl_FragColor = vec4(vC, vA * smoothstep(0.5, 0.28, r)); }'].join('\n')
+    });
+    group.add(new THREE.Points(pg, pm));
+
+    // lines: horizontal contour rings (become floor lines) + strands (twisted on the body, straight column lines on the tower)
+    var NR = 150, NS = 180, NM = 36, NMS = 90;
+    var LV = (NR * NS + NM * NMS) * 2;
+    var aL = new Float32Array(LV * 3), lpos = new Float32Array(LV * 3), m = 0;
+    function push(th, v, kind) { aL[m * 3] = th; aL[m * 3 + 1] = v; aL[m * 3 + 2] = kind; m++; }
+    for (var r = 0; r < NR; r++) {
+      var vr = (r + 0.5) / NR;
+      for (var j = 0; j < NS; j++) { push(j / NS * Math.PI * 2, vr, 0); push((j + 1) / NS * Math.PI * 2, vr, 0); }
+    }
+    for (var q = 0; q < NM; q++) {
+      var tq = q / NM * Math.PI * 2;
+      for (var i = 0; i < NMS; i++) { push(tq, i / NMS, 1); push(tq, (i + 1) / NMS, 1); }
+    }
+    var lg = new THREE.BufferGeometry();
+    lg.setAttribute('position', new THREE.BufferAttribute(lpos, 3));
+    lg.setAttribute('aL', new THREE.BufferAttribute(aL, 3));
+    var lm = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, depthTest: false,
+      vertexShader: COMMON + '\n' + [
+        'attribute vec3 aL; varying float vA;',
+        'void main(){',
+        '  float k = buildK(aL.y);',
+        '  float ring = 1.0 - aL.z;',
+        '  float vs = floor(aL.y * ' + F.toFixed(1) + ' + 0.5) / ' + F.toFixed(1) + ';',
+        '  vec3 ph = humanPos(aL.x + aL.z * aL.y * 2.6, aL.y, 1.0);',
+        '  vec3 pt = towerPos(aL.x, mix(aL.y, vs, ring), 0.0);',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(mix(ph, pt, k), 1.0);',
+        '  vA = ring > 0.5 ? mix(0.2, 0.15, k) : mix(0.09, 0.22, k);',
+        '}'].join('\n'),
+      fragmentShader: 'varying float vA; void main(){ gl_FragColor = vec4(vec3(1.0), vA); }'
+    });
+    group.add(new THREE.LineSegments(lg, lm));
+    // positions come from the shader; keep three from culling on the placeholder zero positions
+    group.traverse(function (o) { o.frustumCulled = false; });
+
+    function size() {
+      var w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      var fit = h / w > 1.2 ? 0.66 : 0.84; // share of the viewport height the figure takes
+      var d = (10.6 / fit) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+      camera.position.set(0, 0.6, d);
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+    }
+    size();
+    window.addEventListener('resize', size);
+
+    // the figure stays a body until the first tower section reaches mid-screen, and is a finished tower
+    // when the notes after the tower sections reach mid-screen
+    var startEl = document.querySelector('[data-build-start]'), endEl = document.querySelector('[data-build-end]');
+    var target = 0, spin = 0, p = 0, t0 = performance.now();
+    function midY(el, y) { return el.getBoundingClientRect().top + y - window.innerHeight * 0.5; }
+    function scrollP() {
+      var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      var y = window.scrollY;
+      var s0 = startEl ? Math.min(max * 0.9, Math.max(0, midY(startEl, y))) : 0;
+      var s1 = endEl ? Math.min(max, Math.max(s0 + 1, midY(endEl, y))) : max;
+      spin = Math.min(1, Math.max(0, y / max));
+      target = Math.min(1, Math.max(0, (y - s0) / (s1 - s0)));
+    }
+    window.addEventListener('scroll', scrollP, { passive: true });
+    window.addEventListener('resize', scrollP);
+    scrollP(); p = target;
+    var lastText = '';
+    function frame(now) {
+      p += (target - p) * (reduce ? 1 : 0.08);
+      if (Math.abs(target - p) < 0.001) p = target; // the easing never quite arrives; the last floor needs p = 1
+      var t = reduce ? 0 : (now - t0) / 1000;
+      U.uP.value = p; U.uTime.value = t;
+      group.rotation.y = t * 0.05 + spin * 2.2;
+      group.position.y = -0.15;
+      renderer.render(scene3, camera);
+      var floors = 0;
+      for (var f2 = 0; f2 < F; f2++) if ((p * 1.35 - (f2 + 1) / F - 0.05) / 0.3 >= 1) floors++;
+      var text = p < 0.002 ? HUMAN_READOUT :
+        'Human → façade · floor ' + String(floors).padStart(2, '0') + ' / ' + F + ' · panels ' + String(floors * S).padStart(4, '0') + ' / ' + PANELS;
+      if (text !== lastText) { lastText = text; readout.textContent = text; }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+})();
+</script>
+</body>
+</html>
